@@ -1,0 +1,30 @@
+{
+  "name": "pixsale",
+  "version": "1.0.0",
+  "description": "Pixels sale on https://pixsale.io",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "truffle compile && truffle-flattener contracts/Pixsale.sol > build/Pixsale.sol",
+    "test": "(ganache-cli 2>&1 > /dev/null &) && CI=true truffle test && kill $(ps -ef | grep ganache | grep -v grep | awk '{print $2}')"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^8.2.0",
+    "ganache-cli": "^6.12.1",
+    "openzeppelin-solidity": "^3.0.1",
+    "prettier": "^2.0.5",
+    "truffle": "^5.3.6",
+    "truffle-flattener": "^1.4.4"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
+    "@truffle/hdwallet-provider": "^1.2.0",
+    "web3": "^1.2.8"
+  }
+}
