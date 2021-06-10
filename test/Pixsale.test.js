@@ -34,8 +34,7 @@ const { expect } = require('chai');
 		const user4 = accounts[6];
 
 		const constructorArgs = [
-			[owner1, owner2],
-			team
+			[owner1, owner2]
 		];
 
 		beforeEach(async () => {
@@ -46,7 +45,7 @@ const { expect } = require('chai');
 
 		});
 
-
+		/* ALL PASSING */
 		it('checks if contract implements interfaces right', async () => {
 			const erc165 = '0x01ffc9a7';
 			const erc721 = '0x80ac58cd';
@@ -124,11 +123,11 @@ const { expect } = require('chai');
 
 		it('checks that sale amounts are distributed as planned and reflection occurs', async() => {
 			/// @notice Distribution is organised as follow :
-			/// - 32% to owner 1
-			/// - 32% to owner 2
+			/// - 30% to owner 1
+			/// - 30% to owner 2
 			/// - 5% to com
 			/// - 1% to final auction
-			/// - 30% to total reflection distributed among holders according to Pixsale reflection rules
+			/// - 34% to total reflection distributed among holders according to Pixsale reflection rules
 			const preBalance1 = await Promise.resolve(parseInt((await web3.eth.getBalance(owner1)).toString()));
 			const preBalance2 = await await Promise.resolve(parseInt((await web3.eth.getBalance(owner2)).toString()));
 			console.log({preBalance1, preBalance2});
@@ -216,6 +215,55 @@ const { expect } = require('chai');
 
 		});
 
+		/* end commented passing tests */
+
+
+
+		it('checks that PIXSMarket features work as expected', async() => {
+			await pixsale.mint(
+				pixelsAmount,							
+				coords,	
+				www,
+				image,
+				tDescription,
+				{ from: user1, value: pixelPrice * pixelsFromCoords((coords)) }
+			).should.be.fulfilled;
+			const startBalance = await Promise.resolve(parseInt((await pixsale.thisBalance()).toString()));
+			const preBalanceUser1 = await Promise.resolve(parseInt((await web3.eth.getBalance(user1)).toString()));
+			const preBalanceUser2 = await Promise.resolve(parseInt((await web3.eth.getBalance(user2)).toString()));
+			await pixsale.sell('1', (0.1*1e18).toString(), { from: owner1 }).should.be.rejectedWith(EVMRevert);
+			await pixsale.buy('1', { from: user2, value: (0.2*1e18).toString() }).should.be.rejectedWith(EVMRevert);
+			await pixsale.sell('1', (0.1*1e18).toString(), { from: user1 }).should.be.fulfilled;
+			await pixsale.buy('1', { from: user2, value: (0.09*1e18).toString() }).should.be.rejectedWith(EVMRevert);
+			await pixsale.buy('1', { from: user2, value: (0.1*1e18).toString() }).should.be.fulfilled;
+			(await pixsale.ownerOf('1')).toString().should.equal(user2);
+			const postBalanceUser1 = await Promise.resolve(parseInt((await web3.eth.getBalance(user1)).toString()));
+			const postBalanceUser2 = await Promise.resolve(parseInt((await web3.eth.getBalance(user2)).toString()));
+			(await Promise.resolve((postBalanceUser1 > preBalanceUser1) && (preBalanceUser2 > postBalanceUser2))).toString().should.equal('true');
+			// proof no fee is collected on public PIXS marketplace sales
+			const endBalance = await Promise.resolve(parseInt((await pixsale.thisBalance()).toString()));
+			endBalance.should.equal(startBalance);
+			// cant by after owner change
+			await pixsale.buy('1', { from: user3, value: (1*1e18).toString() }).should.be.rejectedWith(EVMRevert);
+			/* private sell */
+			const preBalanceUser3 = await Promise.resolve(parseInt((await web3.eth.getBalance(user3)).toString()));
+			await pixsale.privateSellTo('1', (0.1*1e18).toString(), user3, {from: user3}).should.be.rejectedWith(EVMRevert);
+			await pixsale.privateSellTo('1', (0.1*1e18).toString(), user3, {from: user2}).should.be.fulfilled;
+			await pixsale.buy('1', { from: user4, value: (0.1*1e18).toString() }).should.be.rejectedWith(EVMRevert);
+			await pixsale.buy('1', { from: user3, value: (0.095*1e18).toString() }).should.be.rejectedWith(EVMRevert);
+			await pixsale.buy('1', { from: user3, value: (0.1*1e18).toString() }).should.be.fulfilled;
+			(await pixsale.ownerOf('1')).toString().should.equal(user3);
+
+			const postBalanceUser3 = await Promise.resolve(parseInt((await web3.eth.getBalance(user3)).toString()));
+			const postBalanceUser2_2 = await Promise.resolve(parseInt((await web3.eth.getBalance(user2)).toString()));
+
+			(await Promise.resolve((postBalanceUser2_2 > postBalanceUser2) && (preBalanceUser3 > postBalanceUser3))).toString().should.equal('true');
+
+			// proof that no fee is collected when using the integrated PIXS marketplace sales mechanism
+			const finalBalance = await Promise.resolve(parseInt((await pixsale.thisBalance()).toString()));
+			finalBalance.should.equal(startBalance);
+
+		});
 		
 		// it('checks that', async() => {
 

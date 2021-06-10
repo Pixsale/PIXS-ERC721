@@ -1,12 +1,119 @@
 // SPDX-License-Identifier : GPL-v3-only
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./SharedOwnership.sol";
+import "./PIXSMarket.sol";
+
+// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// import "./SharedOwnership.sol";
+
+// contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
+//     using Address for address payable;
+
+//     /// @notice token Id => sale price
+//     mapping (uint => uint) public salePrices;
+
+//     /// @notice token Id => owner => buyer => price
+//     mapping (uint => mapping(address => mapping(address => uint))) public buyerSalePrices;
+
+//     // /// @notice returns weither or not a PIXS has a sale price set
+//     // modifier isOnSale(uint _tokenId, address _optBuyer) {
+//     //     require(
+//     //         (
+//     //             (salePrices[_tokenId] > 0)
+//     //             || (buyerSalePrices[_tokenId][_optBuyer] > 0)
+//     //         ), 
+//     //         'PIXS must be on sale'
+//     //     );
+//     //     _;
+//     // }
+
+//     /// @dev Check that caller is owner of a spacific token
+//     function onlyOwnerOf(uint tokenId) internal view returns(address tokenOwner) {
+//         address tOwner = ownerOf(tokenId);
+//         require(address(tOwner) == address(_msgSender()), 'denied : token not owned');
+//         tokenOwner = tOwner;
+//     }
+
+//     constructor(address[] memory _owners) ERC721('Pixsale', 'PIXS') SharedOwnership(_owners) {}
+    
+//     /// @dev Allows holders to sell their PIXS at chosen price to anyone
+//     function sell(uint _tokenId, uint _amount) public {
+//         onlyOwnerOf(_tokenId);
+//         salePrices[_tokenId] = _amount;
+//     }
+
+//     /// @dev Allows holders to sell their PIXS at chosen price to a specific address
+//     function sellTo(uint _tokenId, uint _amount, address _buyer) public {
+//         address tokenOwner = onlyOwnerOf(_tokenId);
+
+//         buyerSalePrices[_tokenId][tokenOwner][_buyer] = _amount;
+//     }
+
+//     /// @dev Remove a token from sale or remove a buyer from approved buyers
+//     /// @param _tokenId token Id to remove from sale OR to remove `_optBuyer` from sale
+//     /// @param _optBuyer *optional* if a valid buyer address is provided, 
+//     /// the buyer will be removed from allowedBuyers
+//     function removeFromSale(uint _tokenId, address _optBuyer) public {
+//         address tokenOwner = onlyOwnerOf(_tokenId);
+
+//         if (
+//             (address(_optBuyer) != address(0))
+//             && buyerSalePrices[_tokenId][tokenOwner][_optBuyer] != 0
+//         ) {
+//             buyerSalePrices[_tokenId][tokenOwner][_optBuyer] = 0;
+//         }
+//         else if(salePrices[_tokenId] != 0) {
+//             salePrices[_tokenId] = 0;
+//         }
+//     }
+
+//     /// @dev Allow users to buy PIXS tokens if on sale
+//     function buy(uint _tokenId) public payable nonReentrant {
+//         address sender = _msgSender();
+//         address tokenOwner = ownerOf(_tokenId);
+
+//         uint pubSale = salePrices[_tokenId];
+//         uint privateSale = buyerSalePrices[_tokenId][tokenOwner][sender];
+
+//         bool isPrivateSale = privateSale > 0;
+
+//         uint tokenPrice = (
+//             (isPrivateSale)
+//             ? privateSale
+//             : pubSale
+//         );
+
+//         require(
+//             tokenPrice > 0, 
+//             'PIXS must be on sale'
+//         );
+
+//         require(tokenOwner != sender, 'cant buy to self');
+
+//         payable(address(tokenOwner)).sendValue(tokenPrice);
+
+//         // transfer and clear old owner approvals
+//         _transfer(tokenOwner, sender, _tokenId);
+
+//         // remove from public sale
+//         removeFromSale(_tokenId, address(0));
+
+//     }
 
 
-contract Pixsale is ERC721, SharedOwnership, ReentrancyGuard {
+//     /// @dev Allow users to offer a price for the purchase of the token (on sale or not)
+//     function makeOffer(uint _tokenId, uint _amount) public {
+
+//     }
+
+
+
+
+// }
+
+
+contract Pixsale is PIXSMarket {
 
     /// @notice PIXS token properties
     struct PIXS {
@@ -42,8 +149,11 @@ contract Pixsale is ERC721, SharedOwnership, ReentrancyGuard {
     /// @notice Total supply of available pixels
     uint public totalPixels = 8294400;
 
-    /// @notice One pixel cost in ether : 0,0002 ETH == 200000000000000 weis
-    uint public immutable pixelEthPrice = 200000000000000;
+    /// @notice One pixel cost in ether : 0,00025 ETH == 250000000000000 weis
+    uint public immutable pixelEthPrice = 250000000000000;
+
+    // /// @notice BNB price 0.00175 BNB / pixel
+    // uint public immutable pixelBnbPrice = 1750000000000000;
 
     /// @notice Total owners withdraws counter
     uint public totalOwnersWithdrawn;
@@ -83,7 +193,7 @@ contract Pixsale is ERC721, SharedOwnership, ReentrancyGuard {
 
     /// @dev Pixsale construction
     /// @param _owners : array of 2 addresses for shared ownership
-    constructor(address[] memory _owners) ERC721('Pixsale', 'PIXS') SharedOwnership(_owners) {
+    constructor(address[] memory _owners) PIXSMarket(_owners) {
 
         // reserve team pixels part
         teamPixelsSupply = 294400;
@@ -235,11 +345,11 @@ contract Pixsale is ERC721, SharedOwnership, ReentrancyGuard {
 
     /// @dev Spread NFT value according to the rules
     /// @notice Distribution is organised as follow :
-    /// - 32% to owner 1
-    /// - 32% to owner 2
+    /// - 30% to owner 1
+    /// - 30% to owner 2
     /// - 5% to com
     /// - 1% to final auction
-    /// - 30% to total reflection distributed among holders according to Pixsale reflection rules
+    /// - 34% to total reflection distributed among holders according to Pixsale reflection rules (dont 4% pour la reflection influenceurs (giveway pixels))
     function spreadEthValue(uint _value) internal returns (bool trfok) {
         require(thisBalance() >= _value, 'contract balance too low to spread');
 
@@ -512,6 +622,8 @@ contract Pixsale is ERC721, SharedOwnership, ReentrancyGuard {
         require(oSuccess, 'failed to transfer funds to an owner');
 
     }
+
+    
 
 
 
