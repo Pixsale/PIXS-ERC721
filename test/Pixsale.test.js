@@ -17,7 +17,7 @@ const { expect } = require('chai');
 
 		let pixsale;
 
-		const pixelPrice = (0.0003 * 1e18);
+		const pixelPrice = (0.002 * 1e18);
 		const pixelsAmount = 10000; 			// 10 000 pixels
 		const coords = [ 10, 20, 110, 120 ]; 	// 100x100 squared space possible
 		// 			   [ 10, 120, 110, 220 ]	t < B

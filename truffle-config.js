@@ -3,6 +3,7 @@ require('dotenv').config()
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const { MNEMONIC, INFURA_KEY } = process.env;
+
 const solcStable = {
   version: '0.8.4',
   settings: {
@@ -49,9 +50,27 @@ module.exports = {
         return new HDWalletProvider(MNEMONIC, `https://mainnet.infura.io/v3/${INFURA_KEY}`);
       },
       gas: 3500000,   // 3216724
-      gasPrice: 30000000000, // 30Gwei
+      gasPrice: 20000000000, // 30Gwei
       skipDryRun: true
-    }
+    },
+    // binance smart chain testnet
+    bsctest: {
+      provider: () => new HDWalletProvider(MNEMONIC, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      confirmations: 5,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      gas: 5000000
+    },
+    // binance smart chain live
+    bsc: {
+      provider: () => new HDWalletProvider(MNEMONIC, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      confirmations: 5,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      gas: 5000000
+    },
   },
   compilers: {
     solc: solcStable

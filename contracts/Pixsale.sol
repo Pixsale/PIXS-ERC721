@@ -3,117 +3,8 @@ pragma solidity ^0.8.0;
 
 import "./PIXSMarket.sol";
 
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-// import "./SharedOwnership.sol";
-
-// contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
-//     using Address for address payable;
-
-//     /// @notice token Id => sale price
-//     mapping (uint => uint) public salePrices;
-
-//     /// @notice token Id => owner => buyer => price
-//     mapping (uint => mapping(address => mapping(address => uint))) public buyerSalePrices;
-
-//     // /// @notice returns weither or not a PIXS has a sale price set
-//     // modifier isOnSale(uint _tokenId, address _optBuyer) {
-//     //     require(
-//     //         (
-//     //             (salePrices[_tokenId] > 0)
-//     //             || (buyerSalePrices[_tokenId][_optBuyer] > 0)
-//     //         ), 
-//     //         'PIXS must be on sale'
-//     //     );
-//     //     _;
-//     // }
-
-//     /// @dev Check that caller is owner of a spacific token
-//     function onlyOwnerOf(uint tokenId) internal view returns(address tokenOwner) {
-//         address tOwner = ownerOf(tokenId);
-//         require(address(tOwner) == address(_msgSender()), 'denied : token not owned');
-//         tokenOwner = tOwner;
-//     }
-
-//     constructor(address[] memory _owners) ERC721('Pixsale', 'PIXS') SharedOwnership(_owners) {}
-    
-//     /// @dev Allows holders to sell their PIXS at chosen price to anyone
-//     function sell(uint _tokenId, uint _amount) public {
-//         onlyOwnerOf(_tokenId);
-//         salePrices[_tokenId] = _amount;
-//     }
-
-//     /// @dev Allows holders to sell their PIXS at chosen price to a specific address
-//     function sellTo(uint _tokenId, uint _amount, address _buyer) public {
-//         address tokenOwner = onlyOwnerOf(_tokenId);
-
-//         buyerSalePrices[_tokenId][tokenOwner][_buyer] = _amount;
-//     }
-
-//     /// @dev Remove a token from sale or remove a buyer from approved buyers
-//     /// @param _tokenId token Id to remove from sale OR to remove `_optBuyer` from sale
-//     /// @param _optBuyer *optional* if a valid buyer address is provided, 
-//     /// the buyer will be removed from allowedBuyers
-//     function removeFromSale(uint _tokenId, address _optBuyer) public {
-//         address tokenOwner = onlyOwnerOf(_tokenId);
-
-//         if (
-//             (address(_optBuyer) != address(0))
-//             && buyerSalePrices[_tokenId][tokenOwner][_optBuyer] != 0
-//         ) {
-//             buyerSalePrices[_tokenId][tokenOwner][_optBuyer] = 0;
-//         }
-//         else if(salePrices[_tokenId] != 0) {
-//             salePrices[_tokenId] = 0;
-//         }
-//     }
-
-//     /// @dev Allow users to buy PIXS tokens if on sale
-//     function buy(uint _tokenId) public payable nonReentrant {
-//         address sender = _msgSender();
-//         address tokenOwner = ownerOf(_tokenId);
-
-//         uint pubSale = salePrices[_tokenId];
-//         uint privateSale = buyerSalePrices[_tokenId][tokenOwner][sender];
-
-//         bool isPrivateSale = privateSale > 0;
-
-//         uint tokenPrice = (
-//             (isPrivateSale)
-//             ? privateSale
-//             : pubSale
-//         );
-
-//         require(
-//             tokenPrice > 0, 
-//             'PIXS must be on sale'
-//         );
-
-//         require(tokenOwner != sender, 'cant buy to self');
-
-//         payable(address(tokenOwner)).sendValue(tokenPrice);
-
-//         // transfer and clear old owner approvals
-//         _transfer(tokenOwner, sender, _tokenId);
-
-//         // remove from public sale
-//         removeFromSale(_tokenId, address(0));
-
-//     }
-
-
-//     /// @dev Allow users to offer a price for the purchase of the token (on sale or not)
-//     function makeOffer(uint _tokenId, uint _amount) public {
-
-//     }
-
-
-
-
-// }
-
-
 contract Pixsale is PIXSMarket {
+    using Address for address payable;
 
     /// @notice PIXS token properties
     struct PIXS {
@@ -149,11 +40,11 @@ contract Pixsale is PIXSMarket {
     /// @notice Total supply of available pixels
     uint public totalPixels = 8294400;
 
-    /// @notice One pixel cost in ether : 0,00025 ETH == 250000000000000 weis
-    uint public immutable pixelEthPrice = 250000000000000;
-
-    // /// @notice BNB price 0.00175 BNB / pixel
-    // uint public immutable pixelBnbPrice = 1750000000000000;
+    // /// @notice One pixel cost in ether : 0,00025 ETH == 250000000000000 weis
+    // uint public immutable pixelPrice = 250000000000000;
+    
+    /// @notice BNB price 0.002 BNB / pixel
+    uint public immutable pixelPrice = 2000000000000000;
 
     /// @notice Total owners withdraws counter
     uint public totalOwnersWithdrawn;
@@ -173,14 +64,14 @@ contract Pixsale is PIXSMarket {
     /// @notice Total amount of pixels reserved to team members
     uint public teamPixelsSupply;
 
+    /// @notice Total amount of pixels owners have gaveaway
+    uint public totalPixelsGaveway;
+
     /// @notice Track reflection withdraws
     mapping (address => bool) public reflectionWithdrawn;
 
     /// @notice Total number of pixels held from a giveaway
     mapping(address => uint) public pixelsBalance;
-
-    /// @notice Total pixels that an owner has offered / gave away
-    mapping(address => uint) public gaveaway;
 
     /// @notice Track Pixsale partners
     mapping (address => bool) internal partners;
@@ -201,16 +92,14 @@ contract Pixsale is PIXSMarket {
 
     /// @dev TODO : mix both owners balances together
     /// @dev Transfer pixels from owner
-    function _transferFromOwner(uint amount, address account) internal returns(bool trfFromOwner) {
-        address _owner = _msgSender();
-        uint teamPixelsOwnerPart = teamPixelsSupply / 2;
+    function _giveawayPixelsFromOwner(uint amount, address account) internal returns(bool trfFromOwner) {
 
         require(
-            amount <= (teamPixelsOwnerPart - gaveaway[_owner]), 
+            amount <= (teamPixelsSupply - totalPixelsGaveway), 
             'pixels transfer from owner denied : owner pixels balance too low'
         );
 
-        gaveaway[_owner] += amount;
+        totalPixelsGaveway += amount;
         pixelsBalance[account] += amount;
         
         return true;
@@ -237,7 +126,7 @@ contract Pixsale is PIXSMarket {
 
         // transfer pixels
         bool trf = isOwner(_msgSender())
-        ? _transferFromOwner(amount, account)
+        ? _giveawayPixelsFromOwner(amount, account)
         : _transferPixels(amount, account);
 
         require(trf, 'pixels transfer failed');
@@ -305,38 +194,49 @@ contract Pixsale is PIXSMarket {
         );
 
         uint i;
+        uint _limit = 5;
 
         for (i = 0; i < pixs.length; i++) {
 
             PIXS memory _pixs = pixs[i];
             uint[] memory eCoords = _pixs.coords;
+
+            bool isOnLimit = (
+                (_coords[0] == (eCoords[2]-_limit)) 
+                || (_coords[2] == (eCoords[0]+_limit))
+                || (_coords[1] == (eCoords[3]-_limit))
+                || (_coords[3] == (eCoords[1]+_limit))
+            );
             
             // check conflict on X axis
             bool xConflict = (
-                // L: left, R: right, n: new, e: existing
-                // nL <= eL && nR >= eL
-                ((_coords[0] <= eCoords[0]) && (_coords[2] >= eCoords[0])) 
-                // nR >= eL && nL <= eR
-                || ((_coords[2] >= eCoords[0]) && (_coords[0] <= eCoords[2]))
+                (
+                    isOnLimit 
+                    ? false
+                    : (
+                        // L: left, R: right, n: new, e: existing
+                        // nL < eL && nR > eL 
+                        ((_coords[0] < eCoords[0]) && (_coords[2] > eCoords[0]))
+                        // nR > eL && nL < eR
+                        || ((_coords[2] > eCoords[0]) && (_coords[0] < eCoords[2]))     
+                    )
+                )
+               
             );
             
             // OLD:     L    T   R    B
-            //       [ 10, 20, 110, 120 ]
+            //        [ 10, 20, 110, 120 ]
             // new:     l    t    r    b
-            //       [ 10, 120, 110, 220 ]
+            //        [ 10, 120, 110, 220 ]
             if (xConflict) {
                 // and conflict on Y 
                 bool yConflict = (
                     // T: top, B: bottom, n: new, e: existing
-                    //     nT >= eT && nB <= eB
-                    ((_coords[1] >= eCoords[1]) && ((_coords[3] <= eCoords[3])))
-                    //  || nB >= eT && nT <= eB
-                    || ((_coords[3] >= eCoords[1]) && (_coords[1] <= eCoords[3]))
+                    //     nT > eT && nB < eB
+                    ((_coords[1] > eCoords[1]) && ((_coords[3] < eCoords[3])))
+                    //  || nB > eT && nT < eB
+                    || ((_coords[3] > eCoords[1]) && (_coords[1] < eCoords[3]))
                 );
-
-                // bool yConflict2 = (
-                //     _coords[3] < 
-                // );
 
                 require(!yConflict, 'denied : pixels position conflict');
             }
@@ -358,13 +258,11 @@ contract Pixsale is PIXSMarket {
         // to owners
         for (uint i = 0; i < 2; i++) {
             // to contract balance : use ownersWithdraw
-            //payable(address(owners[i])).transfer(quarterFraction);
-            (bool oSuccess,  ) = payable(address(owners[i])).call{value: (onePerc * 32)}("");
-            require(oSuccess, 'failed to transfer funds to an owner');
+            payable(address(owners[i])).sendValue((onePerc * 30));
         }
 
         // to reflection
-        totalReflection += (onePerc * 30);
+        totalReflection += (onePerc * 34);
 
         // to com
         totalCom += (onePerc * 5);
@@ -395,6 +293,8 @@ contract Pixsale is PIXSMarket {
         string memory _titledDescription, 
         address _owner
     ) internal validAddress(_owner) returns (uint _pixsId) {
+        // check that there is enought available pixels
+        require(availablePixels() > 0, 'cant create PIXS token : pixels sold out');
         // check that minimum amount of pixels is respected
         require(_pixelsAmount >= minimumPixelsAmount, 'minimum pixels amount to purchase must be greater or equal 25');
         // check that minimum amount of pixels on each length respects the preset `minimumPixelsLength`
@@ -405,19 +305,17 @@ contract Pixsale is PIXSMarket {
             ),
             'denied : minimum coordinates length must be 5px'
         );
-        // check that there is enought available pixels
-        require(availablePixels() > 0, 'cant create PIXS token : pixels sold out');
 
-        // check that space for `_coords` is available
-        mapConflict(_coords);
-       
         // check that _coords respect the number of requested pixels
         consistentCoords(_pixelsAmount, _coords);
+        
+        // check that space for `_coords` is available
+        mapConflict(_coords);
 
         // check than sender has transfered enough value
-        uint heldPixelsValue = pixelsBalance[_owner] * pixelEthPrice;
+        uint heldPixelsValue = pixelsBalance[_owner] * pixelPrice;
 
-        uint purchaseEthPrice = pixelEthPrice * _pixelsAmount;
+        uint purchaseEthPrice = pixelPrice * _pixelsAmount;
 
         uint priceToPay = (
             (heldPixelsValue >= purchaseEthPrice)
@@ -431,7 +329,7 @@ contract Pixsale is PIXSMarket {
             ((purchaseEthPrice - priceToPay) > 0)   // has pixels
             ? (
                 // how many giveway pixels _owner will consume 
-                (purchaseEthPrice - priceToPay) / pixelEthPrice
+                (purchaseEthPrice - priceToPay) / pixelPrice
             )
             : 0
         );
@@ -448,7 +346,7 @@ contract Pixsale is PIXSMarket {
         // split purchaseEthPrice value 
         if (spreadEthValue(priceToPay)) {
 
-            _mint(_owner, nextId());
+            _mint(_owner, tokenId);
 
             // add to PIXS
             pixs.push(_pixs);
@@ -522,7 +420,7 @@ contract Pixsale is PIXSMarket {
     // }
 
 
-    /// @dev Get the total amount of pixels detained and consumed by an holder 
+    /// @dev Get the total amount of pixels used by all PIXS tokens of an holder
     function pixelsOf(address _holder) public view returns (uint ownerPixels) {
         uint tPixs;
 
@@ -542,20 +440,10 @@ contract Pixsale is PIXSMarket {
         released = availablePixels() <= fraction(totalPixels, 10);
     }
 
-    function isOwnerOrPartner(address addr) internal view returns(bool ownerOrPartner) {
-        ownerOrPartner = isOwner(addr) || partners[addr];
-    }
-
     /// @dev Get the reflection ether amount that an address is or will be able to withdraw 
     /// once at least 90% of all pixels have been consumed
     function reflectionBalanceOf(address _holder) public view returns(uint rAmount) {
-
-        return (
-            isOwnerOrPartner(_holder)
-            ? 0
-            : computeReflection(_holder)
-        );
-        
+        return computeReflection(_holder);
     }
 
     function pixsProratas() internal view returns(uint totalProratas) {
@@ -565,7 +453,7 @@ contract Pixsale is PIXSMarket {
         for (uint i = 0; i < tPixs; i++) {
             PIXS memory _pixs = pixs[i];
             uint totalHoldersAfter = tPixs - i;
-            uint prorata = (_pixs.pixels * pixelEthPrice) * totalHoldersAfter;
+            uint prorata = (_pixs.pixels * pixelPrice) * totalHoldersAfter;
 
             _totalProratas += prorata;
         }
@@ -587,7 +475,7 @@ contract Pixsale is PIXSMarket {
 
             if (address(_pixs.owner) == address(_holder)) {
                 uint totalHoldersAfter = tPixs - i;
-                uint inflatedProrata = _pixs.pixels * pixelEthPrice * totalHoldersAfter * multip;
+                uint inflatedProrata = _pixs.pixels * pixelPrice * totalHoldersAfter * multip;
                 uint inflatedCoef = inflatedProrata / totalProratas;
                 
                 holderTotalRef += ( (inflatedCoef * totalReflection) / multip );
@@ -602,29 +490,82 @@ contract Pixsale is PIXSMarket {
    
     /// @dev Allow holders to withdraw their part of the reflection after all pixels have been consumed
     function holdersReflectionWithdraw() public nonReentrant {
-        // check that all pixels have been sold  
         require(reflectionReleased(), 'denied : at least 90% of all pixels must have been sold');
 
         address sender = _msgSender();
 
-        // check that sender has not already withdrawn its part of the reflection 
         require(!reflectionWithdrawn[sender], 'denied : cant withdraw reflection part twice');
 
-        // compute reflection part
-        uint reflectionPart = reflectionBalanceOf(sender);
+        uint reflectionPart = computeReflection(sender);
         require(reflectionPart > 0, 'denied : no reflection allowance');
 
         reflectionWithdrawn[sender] = true;
         totalReflection -= reflectionPart;
 
-        (bool oSuccess,  ) = payable(address(sender)).call{value: reflectionPart}("");
-        
-        require(oSuccess, 'failed to transfer funds to an owner');
+        payable(address(sender)).sendValue(reflectionPart);
 
     }
 
     
 
+
+    /* PIXS INTEGRATED MARKET PUBLIC BUY */
+    /// @dev Allow users to buy PIXS tokens if on sale
+    function buy(uint _tokenId) public payable nonReentrant {
+        address buyer = _msgSender();
+        address seller = ownerOf(_tokenId);
+
+        require(seller != buyer, 'cant buy to self');
+
+        uint tokenPrice = _getTokenPrice(_tokenId, seller, buyer);
+
+        require(
+            tokenPrice > 0, 
+            'PIXS must be on sale'
+        );
+
+        require(
+            msg.value >= tokenPrice 
+        );
+
+        payable(address(seller)).sendValue(tokenPrice);
+        
+        // transfer and clear old owner approvals
+        internalTransfer(seller, _tokenId, buyer);
+
+        // remove from public sale
+        salePrices[_tokenId] = 0;
+
+    }
+
+    /// @dev Public PIXS transfer method
+    function transfer(uint tokenId, address receiver) public returns(bool transferred) {
+        
+        address tOwner = onlyOwnerOf(tokenId);
+
+        return internalTransfer(tOwner, tokenId, receiver);
+
+    }
+
+    /// @dev Internal transfer 
+    function internalTransfer(address tOwner, uint tokenId, address receiver) validAddress(receiver) internal returns(bool transferred) {
+        
+        uint tPixs = pixs.length;
+        
+        for (uint i = 0; i < tPixs; i++) {
+            PIXS memory _pixs = pixs[i];
+
+            if (address(_pixs.owner) == address(tOwner)) {
+                _pixs.owner = receiver;
+                pixs[i] = _pixs;
+            }
+        }
+
+        _transfer(tOwner, receiver, tokenId);
+
+        return true;
+        
+    }
 
 
 

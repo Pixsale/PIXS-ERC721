@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./SharedOwnership.sol";
 
 contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
-    using Address for address payable;
 
     /// @notice token Id => sale price
     mapping (uint => uint) public salePrices;
@@ -56,42 +55,53 @@ contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
         }
     }
 
-    /// @dev Allow users to buy PIXS tokens if on sale
-    function buy(uint _tokenId) public payable nonReentrant {
-        address sender = _msgSender();
-        address tokenOwner = ownerOf(_tokenId);
-
-        require(tokenOwner != sender, 'cant buy to self');
+    function _getTokenPrice(uint _tokenId, address _tokenOwner, address _sender) internal view returns(uint tokenPrice) {
 
         uint pubSale = salePrices[_tokenId];
-        uint privateSale = privateSalePrices[_tokenId][tokenOwner][sender];
+        uint privateSale = privateSalePrices[_tokenId][_tokenOwner][_sender];
 
         bool isPrivateSale = privateSale > 0;
 
-        uint tokenPrice = (
+        tokenPrice = (
             (isPrivateSale)
             ? privateSale
             : pubSale
         );
-
-        require(
-            tokenPrice > 0, 
-            'PIXS must be on sale'
-        );
-
-        require(
-            msg.value >= tokenPrice 
-        );
-
-        payable(address(tokenOwner)).sendValue(tokenPrice);
-
-        // transfer and clear old owner approvals
-        _transfer(tokenOwner, sender, _tokenId);
-
-        // remove from public sale
-        salePrices[_tokenId] = 0;
-
     }
+
+    function getTokenPrice(uint _tokenId, address _sender) public view returns(uint tokenPrice) {
+        address _tokenOwner = ownerOf(_tokenId);
+        tokenPrice = _getTokenPrice(_tokenId, _tokenOwner, _sender);
+    }
+
+    // /// @dev Allow users to buy PIXS tokens if on sale
+    // function buy(uint _tokenId) public payable nonReentrant {
+    //     address sender = _msgSender();
+    //     address tokenOwner = ownerOf(_tokenId);
+
+    //     require(tokenOwner != sender, 'cant buy to self');
+
+    //     uint tokenPrice = _getTokenPrice(_tokenId, tokenOwner, sender);
+
+    //     require(
+    //         tokenPrice > 0, 
+    //         'PIXS must be on sale'
+    //     );
+
+    //     require(
+    //         msg.value >= tokenPrice 
+    //     );
+
+    //     payable(address(tokenOwner)).sendValue(tokenPrice);
+        
+    //     // transfer and clear old owner approvals
+    //     _transfer(tokenOwner, sender, _tokenId);
+
+    //     // remove from public sale
+    //     salePrices[_tokenId] = 0;
+
+    // }
+
 
 
     /// @dev Allow users to propose a price for the purchase of a token that is or not for sale

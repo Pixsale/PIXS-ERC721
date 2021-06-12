@@ -1,0 +1,71 @@
+Starting migrations...
+======================
+> Network name:    'bsctest'
+> Network id:      97
+> Block gas limit: 30000000 (0x1c9c380)
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0xcfe2723553e44eb762551f9305ea0588d7586aa45feef872d19ad75a50777a32
+   > Blocks: 5            Seconds: 13
+   > contract address:    0xD590f4525512C432114bD71d514d600F7EB82669
+   > block number:        9639084
+   > block timestamp:     1623414577
+   > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
+   > balance:             1.01197607
+   > gas used:            153718 (0x25876)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00307436 ETH
+
+   Pausing for 5 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 9639087)
+   > confirmation number: 3 (block: 9639089)
+   > confirmation number: 4 (block: 9639090)
+   > confirmation number: 5 (block: 9639091)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00307436 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'Pixsale'
+   -------------------
+   > transaction hash:    0x2e873cf51fb0f56ae500f09b780091e9c8bb5cd15d7377ee87576863d6d7566c
+   > Blocks: 2            Seconds: 9
+   > contract address:    0x38D29829e4C4E3Cb3DFf589ec99B5f7c75d79779
+   > block number:        9639099
+   > block timestamp:     1623414622
+   > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
+   > balance:             0.91652553
+   > gas used:            4730237 (0x482d7d)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.09460474 ETH
+
+   Pausing for 5 confirmations...
+   ------------------------------
+   > confirmation number: 2 (block: 9639103)
+   > confirmation number: 3 (block: 9639104)
+   > confirmation number: 4 (block: 9639105)
+   > confirmation number: 6 (block: 9639107)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.09460474 ETH
+
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.0976791 ETH
