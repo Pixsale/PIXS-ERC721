@@ -90,7 +90,6 @@ contract Pixsale is PIXSMarket {
         teamPixelsSupply = 294400;
     }
 
-    /// @dev TODO : mix both owners balances together
     /// @dev Transfer pixels from owner
     function _giveawayPixelsFromOwner(uint amount, address account) internal returns(bool trfFromOwner) {
 
@@ -179,33 +178,42 @@ contract Pixsale is PIXSMarket {
 
     /// @dev Check pixels superposition with existing PIXS occupied space 
     function mapConflict(uint[] memory _coords) internal view {
-        // look for 4K map borders overflow (3840 x 2160 pixels)
-        require(
-            (
-                _coords[0] >= 0 
-                && _coords[1] >= 0
-                && (
-                    _coords[2] >= 0 
-                    && _coords[2] <= 3840
-                
-                && _coords[3] > 0 && _coords[3] <= 2160)
-            ),
-            'map borders overflow'
-        );
+        uint l = _coords[0]; 
+        uint t = _coords[1]; 
+        uint r = _coords[2]; 
+        uint b = _coords[3];
 
-        uint i;
         uint _limit = 5;
 
+        // look for 4K map borders overflow (3840 x 2160 pixels) and check that space from nearest boundary is min 5 or 0
+        require(
+            (
+                ((l == 0) || (l >= _limit)) 
+                && ((t == 0) || (t >= _limit)) 
+                && (
+                    r >= _limit
+                    && ((r == 3840) || (r <= (3840-_limit)))
+                )
+                && (
+                    b >= _limit
+                    && ((b == 2160) || (b <= (2160-_limit)))
+                )
+            ),
+            'map borders overflow or not enough space of 5px'
+        );
+
+        // check that there is no conflict with existing coordinates
+        uint i;
         for (i = 0; i < pixs.length; i++) {
 
             PIXS memory _pixs = pixs[i];
             uint[] memory eCoords = _pixs.coords;
 
             bool isOnLimit = (
-                (_coords[0] == (eCoords[2]-_limit)) 
-                || (_coords[2] == (eCoords[0]+_limit))
-                || (_coords[1] == (eCoords[3]-_limit))
-                || (_coords[3] == (eCoords[1]+_limit))
+                (l == (eCoords[2]-_limit)) 
+                || (r == (eCoords[0]+_limit))
+                || (t == (eCoords[3]-_limit))
+                || (b == (eCoords[1]+_limit))
             );
             
             // check conflict on X axis
@@ -216,9 +224,9 @@ contract Pixsale is PIXSMarket {
                     : (
                         // L: left, R: right, n: new, e: existing
                         // nL < eL && nR > eL 
-                        ((_coords[0] < eCoords[0]) && (_coords[2] > eCoords[0]))
+                        ((l < eCoords[0]) && (r > eCoords[0]))
                         // nR > eL && nL < eR
-                        || ((_coords[2] > eCoords[0]) && (_coords[0] < eCoords[2]))     
+                        || ((r > eCoords[0]) && (l < eCoords[2]))     
                     )
                 )
                
@@ -233,9 +241,9 @@ contract Pixsale is PIXSMarket {
                 bool yConflict = (
                     // T: top, B: bottom, n: new, e: existing
                     //     nT > eT && nB < eB
-                    ((_coords[1] > eCoords[1]) && ((_coords[3] < eCoords[3])))
+                    ((t > eCoords[1]) && ((b < eCoords[3])))
                     //  || nB > eT && nT < eB
-                    || ((_coords[3] > eCoords[1]) && (_coords[1] < eCoords[3]))
+                    || ((b > eCoords[1]) && (t < eCoords[3]))
                 );
 
                 require(!yConflict, 'denied : pixels position conflict');
@@ -274,7 +282,6 @@ contract Pixsale is PIXSMarket {
 
     }
 
-    /// @dev TODO :     - Utilisation de pixel pour minter un PIXS (soustraction de la valeur transféré lors d’un mint) // RAT
     /// @notice mint a new PIXS NFT from ETH
     /// @dev consumes pixels from `totalPixels`
     /// @param _pixelsAmount is the amount of pixels sender wants to purchase
@@ -510,6 +517,29 @@ contract Pixsale is PIXSMarket {
 
 
     /* PIXS INTEGRATED MARKET PUBLIC BUY */
+
+    /// @dev Internal transfer 
+    function internalTransfer(address tOwner, uint tokenId, address receiver) 
+    validAddress(receiver) internal returns(bool transferred) {
+        
+        uint tPixs = pixs.length;
+        
+        for (uint i = 0; i < tPixs; i++) {
+            PIXS memory _pixs = pixs[i];
+
+            if (address(_pixs.owner) == address(tOwner)) {
+                _pixs.owner = receiver;
+                pixs[i] = _pixs;
+            }
+        }
+
+        _transfer(tOwner, receiver, tokenId);
+
+        return true;
+        
+    }
+
+
     /// @dev Allow users to buy PIXS tokens if on sale
     function buy(uint _tokenId) public payable nonReentrant {
         address buyer = _msgSender();
@@ -547,26 +577,7 @@ contract Pixsale is PIXSMarket {
 
     }
 
-    /// @dev Internal transfer 
-    function internalTransfer(address tOwner, uint tokenId, address receiver) validAddress(receiver) internal returns(bool transferred) {
-        
-        uint tPixs = pixs.length;
-        
-        for (uint i = 0; i < tPixs; i++) {
-            PIXS memory _pixs = pixs[i];
-
-            if (address(_pixs.owner) == address(tOwner)) {
-                _pixs.owner = receiver;
-                pixs[i] = _pixs;
-            }
-        }
-
-        _transfer(tOwner, receiver, tokenId);
-
-        return true;
-        
-    }
-
+  
 
 
 
