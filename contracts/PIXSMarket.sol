@@ -14,7 +14,7 @@ contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
     mapping (uint => mapping(address => mapping(address => uint))) public privateSalePrices;
 
     /// @dev Event firing when an offer has been made by a user to buy a specific token at proposed price
-    event isOffering(uint indexed tokenId, address indexed offerer, uint amount);
+    event IsOffering(uint indexed tokenId, address indexed offerer, uint amount);
 
     /// @dev Check that caller is owner of a spacific token
     function onlyOwnerOf(uint tokenId) internal view returns(address tokenOwner) {
@@ -108,7 +108,7 @@ contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
     /// @param _tokenId Token targeted by sender
     /// @param _amount amount in BNB that sender proposes to buy the token
     function makeOffer(uint _tokenId, uint _amount) external {
-        emit isOffering(_tokenId, _msgSender(), _amount);
+        emit IsOffering(_tokenId, _msgSender(), _amount);
     }
 
 

@@ -1,3 +1,9 @@
+Compiling your contracts...
+===========================
+> Everything is up to date, there is nothing to compile.
+
+
+
 Starting migrations...
 ======================
 > Network name:    'bsctest'
@@ -8,15 +14,15 @@ Starting migrations...
 1_initial_migration.js
 ======================
 
-   Deploying 'Migrations'
+   Replacing 'Migrations'
    ----------------------
-   > transaction hash:    0xcfe2723553e44eb762551f9305ea0588d7586aa45feef872d19ad75a50777a32
-   > Blocks: 5            Seconds: 13
-   > contract address:    0xD590f4525512C432114bD71d514d600F7EB82669
-   > block number:        9639084
-   > block timestamp:     1623414577
+   > transaction hash:    0x3883cda3fc2846f1126bad3359862eae0d8412eb3ae58186eca0ccd32eac5795
+   > Blocks: 2            Seconds: 9
+   > contract address:    0xe3c9f43DdAA68b1C707893F70789Ba1C32d2812b
+   > block number:        9729251
+   > block timestamp:     1623685078
    > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
-   > balance:             1.01197607
+   > balance:             0.44317639
    > gas used:            153718 (0x25876)
    > gas price:           20 gwei
    > value sent:          0 ETH
@@ -24,10 +30,9 @@ Starting migrations...
 
    Pausing for 5 confirmations...
    ------------------------------
-   > confirmation number: 1 (block: 9639087)
-   > confirmation number: 3 (block: 9639089)
-   > confirmation number: 4 (block: 9639090)
-   > confirmation number: 5 (block: 9639091)
+   > confirmation number: 2 (block: 9729254)
+   > confirmation number: 3 (block: 9729255)
+   > confirmation number: 5 (block: 9729257)
 
    > Saving migration to chain.
    > Saving artifacts
@@ -38,34 +43,34 @@ Starting migrations...
 2_deploy_contracts.js
 =====================
 
-   Deploying 'Pixsale'
+   Replacing 'Pixsale'
    -------------------
-   > transaction hash:    0x2e873cf51fb0f56ae500f09b780091e9c8bb5cd15d7377ee87576863d6d7566c
-   > Blocks: 2            Seconds: 9
-   > contract address:    0x38D29829e4C4E3Cb3DFf589ec99B5f7c75d79779
-   > block number:        9639099
-   > block timestamp:     1623414622
+   > transaction hash:    0x877fa43803355a57969c8e231d4d8ff60437b76e31cf89a4f833414440031719
+   > Blocks: 3            Seconds: 9
+   > contract address:    0x1ca27585753988FaC9294169E3544de9A1113fCE
+   > block number:        9729265
+   > block timestamp:     1623685120
    > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
-   > balance:             0.91652553
-   > gas used:            4730237 (0x482d7d)
+   > balance:             0.34146211
+   > gas used:            5043424 (0x4cf4e0)
    > gas price:           20 gwei
    > value sent:          0 ETH
-   > total cost:          0.09460474 ETH
+   > total cost:          0.10086848 ETH
 
    Pausing for 5 confirmations...
    ------------------------------
-   > confirmation number: 2 (block: 9639103)
-   > confirmation number: 3 (block: 9639104)
-   > confirmation number: 4 (block: 9639105)
-   > confirmation number: 6 (block: 9639107)
+   > confirmation number: 2 (block: 9729269)
+   > confirmation number: 3 (block: 9729270)
+   > confirmation number: 4 (block: 9729271)
+   > confirmation number: 6 (block: 9729273)
 
    > Saving migration to chain.
    > Saving artifacts
    -------------------------------------
-   > Total cost:          0.09460474 ETH
+   > Total cost:          0.10086848 ETH
 
 
 Summary
 =======
 > Total deployments:   2
-> Final cost:          0.0976791 ETH
+> Final cost:          0.10394284 ETH

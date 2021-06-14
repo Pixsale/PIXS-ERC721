@@ -468,6 +468,31 @@ contract Pixsale is PIXSMarket {
         return _totalProratas;
     }
 
+    /// @dev Compute reflection of a single token
+    function tokenReflection(uint _tokenId) public view returns(uint tReflection) {
+        uint tPixs = pixs.length;
+        uint multip = 1e18; 
+        uint totalProratas = pixsProratas();
+
+        uint tRef;
+
+        for (uint i = 0; i < tPixs; i++) {
+            if (i == (_tokenId-1)) {
+                PIXS memory _pixs = pixs[i];
+
+                uint totalHoldersAfter = tPixs - i;
+                uint inflatedProrata = _pixs.pixels * pixelPrice * totalHoldersAfter * multip;
+                uint inflatedCoef = inflatedProrata / totalProratas;
+                
+                tRef = ( (inflatedCoef * totalReflection) / multip );
+
+            }
+        }
+
+        return tRef;
+
+    }
+
     /// @dev Computes the reflection amount according to Pixsale reflection policy
     function computeReflection(address _holder) internal view returns(uint holderTotalReflectionBalance) {
 

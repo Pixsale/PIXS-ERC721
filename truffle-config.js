@@ -60,7 +60,7 @@ module.exports = {
       confirmations: 5,
       timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 5000000
+      gas: 5500000
     },
     // binance smart chain live
     bsc: {
@@ -69,7 +69,7 @@ module.exports = {
       confirmations: 5,
       timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 5000000
+      gas: 5500000
     },
   },
   compilers: {
