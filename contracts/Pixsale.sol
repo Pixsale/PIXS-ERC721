@@ -46,12 +46,6 @@ contract Pixsale is PIXSMarket {
     /// @notice BNB price 0.002 BNB / pixel
     uint public immutable pixelPrice = 2000000000000000;
 
-    /// @notice Total owners withdraws counter
-    uint public totalOwnersWithdrawn;
-
-    /// @notice Total holders withdraws counter
-    uint public totalHoldersWithdrawn;
-
     /// @notice Total Reflection to distribute among all holders prorata to the ratio totalPixels / balance
     uint public totalReflection;
 
@@ -144,7 +138,7 @@ contract Pixsale is PIXSMarket {
 
     /// @dev Get one PIXS token from its id
     function getPixs(uint tokenId) public view returns(PIXS memory _pixs) {
-        _pixs = pixs[tokenId];
+        _pixs = pixs[tokenId-1];
     }
 
     /// @dev Get the total supply of PIXS NFT tokens
@@ -546,18 +540,16 @@ contract Pixsale is PIXSMarket {
     /// @dev Internal transfer 
     function internalTransfer(address tOwner, uint tokenId, address receiver) 
     validAddress(receiver) internal returns(bool transferred) {
-        
-        uint tPixs = pixs.length;
-        
-        for (uint i = 0; i < tPixs; i++) {
-            PIXS memory _pixs = pixs[i];
+                
+        PIXS memory _pixs = pixs[tokenId-1];
 
-            if (address(_pixs.owner) == address(tOwner)) {
-                _pixs.owner = receiver;
-                pixs[i] = _pixs;
-            }
+        if (address(_pixs.owner) == address(tOwner)) {
+            _pixs.owner = receiver;
+            pixs[tokenId-1] = _pixs;
         }
+    
 
+        // _transfer(tOwner, receiver, tokenId);
         _transfer(tOwner, receiver, tokenId);
 
         return true;
@@ -599,6 +591,38 @@ contract Pixsale is PIXSMarket {
         address tOwner = onlyOwnerOf(tokenId);
 
         return internalTransfer(tOwner, tokenId, receiver);
+
+    }
+
+    function sameString(string memory a, string memory b) internal pure returns(bool sameStr) {
+        sameStr = (
+            keccak256(abi.encodePacked(a)) 
+            == keccak256(abi.encodePacked(b))
+        );
+    }
+
+    /// @dev Edit owned token metadatas titledDescription, image and link
+    /// @notice pass empty strings ("") as arguments to keep existing value
+    function editPixsMetadatas(uint tokenId, string memory tDes, string memory image, string memory link) public {
+        onlyOwnerOf(tokenId);
+        
+        string memory emptyString = "";
+
+        uint pixsIndex = tokenId-1;
+        PIXS memory _pixs = pixs[pixsIndex];
+
+        if (!sameString(tDes, emptyString)) {
+            _pixs.titledDescription = tDes;
+        }
+        if (!sameString(image, emptyString)) {
+            _pixs.image = image;
+        }
+        if (!sameString(link, emptyString)) {
+            _pixs.link = link;
+        }
+
+        pixs[pixsIndex] = _pixs;
+        
 
     }
 
