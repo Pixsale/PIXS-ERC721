@@ -39,18 +39,19 @@ contract Pixsale is PIXSMarket {
     
     /// @notice Total supply of available pixels
     uint public totalPixels = 8294400;
-
-    // /// @notice One pixel cost in ether : 0,00025 ETH == 250000000000000 weis
-    // uint public immutable pixelPrice = 250000000000000;
     
-    /// @notice BNB price 0.002 BNB / pixel
-    uint public immutable pixelPrice = 2000000000000000;
+    /// @notice BNB price 0.0015 BNB / pixel
+    uint public immutable pixelPrice = 1500000000000000;
 
     /// @notice Total Reflection to distribute among all holders prorata to the ratio totalPixels / balance
     uint public totalReflection;
 
+    /// @dev TODO : Allow com wallet to withdraw in totalCom
     /// @notice Total received value dedicated to communication / marketing 
     uint public totalCom;
+
+    /// @notice Total that has been withdrawn by marketing partner
+    uint public totalComWithdrawn;
 
     /// @notice Total received value dedicated to final auction of the artwork
     uint public totalAuction;
@@ -61,8 +62,15 @@ contract Pixsale is PIXSMarket {
     /// @notice Total amount of pixels owners have gaveaway
     uint public totalPixelsGaveway;
 
+    /// @notice Reflection release date
+    uint public reflectionReleaseTimestamp;
+
+    /// @notice Communication / Marketing partner wallet
+    address public comWallet;
+
     /// @notice Track reflection withdraws
-    mapping (address => bool) public reflectionWithdrawn;
+    /// @dev tokenId => boolean
+    mapping (uint => bool) public reflectionWithdrawn;
 
     /// @notice Total number of pixels held from a giveaway
     mapping(address => uint) public pixelsBalance;
@@ -75,6 +83,7 @@ contract Pixsale is PIXSMarket {
 
 
     event Refunded(address indexed orderer, uint refundAmount);
+    event ReflectionIsReleased();
 
     /// @dev Pixsale construction
     /// @param _owners : array of 2 addresses for shared ownership
@@ -82,6 +91,35 @@ contract Pixsale is PIXSMarket {
 
         // reserve team pixels part
         teamPixelsSupply = 294400;
+    }
+
+    modifier reflectionIsReleased() {
+        require(
+            (
+                (reflectionReleaseTimestamp > 0) 
+                && reflectionReleased()
+            ),
+            'reflection must be released'
+        );
+        _;
+    }
+
+    function setComWallet(address _comAccount) public onlyOwner {
+        comWallet = _comAccount;
+    }
+
+    function totalComAvailable() public view returns(uint ttlComAvail) {
+        ttlComAvail = totalCom - totalComWithdrawn;
+    }
+
+    function comPartnerWithdraw(uint _amount) public {
+        address sender = _msgSender();
+        require(address(sender) == address(comWallet), 'reserved to marketing partner');
+        require(_amount <= totalComAvailable(), 'not enough funds available for marketing');
+
+        totalComWithdrawn += _amount;
+        payable(address(comWallet)).sendValue(_amount);
+
     }
 
     /// @dev Transfer pixels from owner
@@ -168,6 +206,17 @@ contract Pixsale is PIXSMarket {
         );
 
         require(pixels == _pixels, 'denied : coordinates pixels count must be equal to ordered pixels amount');
+
+        // check that minimum amount of pixels is respected
+        require(_pixels >= minimumPixelsAmount, 'minimum pixels amount to purchase must be greater or equal 25');
+        // check that minimum amount of pixels on each length respects the preset `minimumPixelsLength`
+        require(
+            (
+                ((_coords[2] - _coords[0]) >= minimumPixelsLength)
+                && ((_coords[3] - _coords[1]) >= minimumPixelsLength)
+            ),
+            'denied : minimum coordinates length must be 5px'
+        );
     }
 
     /// @dev Check pixels superposition with existing PIXS occupied space 
@@ -295,25 +344,15 @@ contract Pixsale is PIXSMarket {
         address _owner
     ) internal validAddress(_owner) returns (uint _pixsId) {
         // check that there is enought available pixels
-        require(availablePixels() > 0, 'cant create PIXS token : pixels sold out');
-        // check that minimum amount of pixels is respected
-        require(_pixelsAmount >= minimumPixelsAmount, 'minimum pixels amount to purchase must be greater or equal 25');
-        // check that minimum amount of pixels on each length respects the preset `minimumPixelsLength`
-        require(
-            (
-                ((_coords[2] - _coords[0]) >= minimumPixelsLength)
-                && ((_coords[3] - _coords[1]) >= minimumPixelsLength)
-            ),
-            'denied : minimum coordinates length must be 5px'
-        );
+        require(availablePixels() >= 25, 'cant create PIXS token : pixels sold out');
 
-        // check that _coords respect the number of requested pixels
+        // check that _coords respects the number of requested pixels
         consistentCoords(_pixelsAmount, _coords);
         
         // check that space for `_coords` is available
         mapConflict(_coords);
 
-        // check than sender has transfered enough value
+        // check than sender has transferred enough value
         uint heldPixelsValue = pixelsBalance[_owner] * pixelPrice;
 
         uint purchaseEthPrice = pixelPrice * _pixelsAmount;
@@ -340,12 +379,13 @@ contract Pixsale is PIXSMarket {
             pixelsBalance[_owner] -= giveawayPixelsCost;
         }
 
-        uint tokenId = nextId();
-
         PIXS memory _pixs = PIXS(_owner, _pixelsAmount, _coords, _image, _link, _titledDescription);
 
         // split purchaseEthPrice value 
         if (spreadEthValue(priceToPay)) {
+
+            uint tokenId = nextId();
+
 
             _mint(_owner, tokenId);
 
@@ -360,6 +400,12 @@ contract Pixsale is PIXSMarket {
             if (refund > 0) {
                 payable(_msgSender()).transfer(refund);
                 emit Refunded(_msgSender(), refund);
+            }
+
+            // release reflection
+            if (reflectionReleased()) {
+                reflectionReleaseTimestamp = block.timestamp;
+                emit ReflectionIsReleased();
             }
 
             // return the new created token id
@@ -437,12 +483,13 @@ contract Pixsale is PIXSMarket {
     }
 
     /// @dev Know weither or not holder can withdraw their part on total reflection
+    /// @dev Remaining space on `The Map` must be low enough not to be able to mint a new PIXS
     function reflectionReleased() public view returns(bool released) {
-        released = availablePixels() <= fraction(totalPixels, 10);
+        released = availablePixels() < 25;
     }
 
     /// @dev Get the reflection ether amount that an address is or will be able to withdraw 
-    /// once at least 90% of all pixels have been consumed
+    /// once 99.9997% of the pixels supply have been consumed
     function reflectionBalanceOf(address _holder) public view returns(uint rAmount) {
         return computeReflection(_holder);
     }
@@ -462,32 +509,30 @@ contract Pixsale is PIXSMarket {
         return _totalProratas;
     }
 
-    /// @dev Compute reflection of a single token
-    function tokenReflection(uint _tokenId) public view returns(uint tReflection) {
+    /// @dev Simulate reflection calculation from pixels amount and tokenId (aka `position`)
+    function simulateReflection(uint pixels, uint position) public view returns(uint pixelsReflection) {
         uint tPixs = pixs.length;
-        uint multip = 1e18; 
-        uint totalProratas = pixsProratas();
-
-        uint tRef;
-
-        for (uint i = 0; i < tPixs; i++) {
-            if (i == (_tokenId-1)) {
-                PIXS memory _pixs = pixs[i];
-
-                uint totalHoldersAfter = tPixs - i;
-                uint inflatedProrata = _pixs.pixels * pixelPrice * totalHoldersAfter * multip;
-                uint inflatedCoef = inflatedProrata / totalProratas;
-                
-                tRef = ( (inflatedCoef * totalReflection) / multip );
-
-            }
-        }
-
-        return tRef;
-
+        uint multip = 1e18;
+        uint totalHoldersAfter = tPixs - position;
+        uint inflatedProrata = pixels * pixelPrice * totalHoldersAfter * multip;
+        uint inflatedCoef = inflatedProrata / pixsProratas();
+        
+        pixelsReflection = ( (inflatedCoef * totalReflection) / multip );
     }
 
-    /// @dev Computes the reflection amount according to Pixsale reflection policy
+    /// @dev Compute reflection of a single token
+    function tokenReflection(uint _tokenId) public view returns(uint tReflection) {
+        if (reflectionWithdrawn[_tokenId]) 
+            return 0;
+        else {
+            PIXS memory _pixs = pixs[_tokenId-1];
+            return simulateReflection(_pixs.pixels, _tokenId);
+        }
+    }
+
+
+    /// @dev Computes the reflection amount of a PIXS holder according to Pixsale reflection policy
+    /// @notice Token with already withdrawn reflection are excluded from addition
     function computeReflection(address _holder) internal view returns(uint holderTotalReflectionBalance) {
 
         uint tPixs = pixs.length;
@@ -498,8 +543,9 @@ contract Pixsale is PIXSMarket {
 
         for (uint i = 0; i < tPixs; i++) {
             PIXS memory _pixs = pixs[i];
-
-            if (address(_pixs.owner) == address(_holder)) {
+            uint tokenId = i+1;
+            
+            if ((address(_pixs.owner) == address(_holder)) && !reflectionWithdrawn[tokenId]) {
                 uint totalHoldersAfter = tPixs - i;
                 uint inflatedProrata = _pixs.pixels * pixelPrice * totalHoldersAfter * multip;
                 uint inflatedCoef = inflatedProrata / totalProratas;
@@ -513,31 +559,69 @@ contract Pixsale is PIXSMarket {
             
     }
 
+    /// @dev Computes the reflection tokens and 
+    function setReflectionWithrawnFor(address _holder) internal returns(uint balCheck, uint pixelsCheck) {
+        uint hBalanceCheck = 0;
+        uint hPixelsCheck = 0;
+
+        for (uint i = 0; i < pixs.length; i++) {
+            PIXS memory _pixs = pixs[i];
+            uint tokenId = i+1;
+
+            if ((address(_pixs.owner) == address(_holder)) && !reflectionWithdrawn[tokenId]) {
+               
+                reflectionWithdrawn[tokenId] = true;
+                hBalanceCheck += 1;
+                hPixelsCheck += _pixs.pixels;
+            }
+
+        }
+
+        return(hBalanceCheck, hPixelsCheck);
+        //
+    }
+    
    
     /// @dev Allow holders to withdraw their part of the reflection after all pixels have been consumed
-    function holdersReflectionWithdraw() public nonReentrant {
-        require(reflectionReleased(), 'denied : at least 90% of all pixels must have been sold');
+    function holdersReflectionWithdraw() public reflectionIsReleased nonReentrant {
+        require(reflectionReleased(), 'denied : the map is not filled');
 
         address sender = _msgSender();
-
-        require(!reflectionWithdrawn[sender], 'denied : cant withdraw reflection part twice');
-
         uint reflectionPart = computeReflection(sender);
+
+        uint pixelsOfSender = pixelsOf(sender);
+        uint balanceOfSender = balanceOf(sender);
+
         require(reflectionPart > 0, 'denied : no reflection allowance');
 
-        reflectionWithdrawn[sender] = true;
-        totalReflection -= reflectionPart;
+        (uint balCheck, uint pixelsCheck) = setReflectionWithrawnFor(sender);
+
+        require(pixelsCheck <= pixelsOfSender, 'cant withdraw more than held pixels');
+        require(balCheck <= balanceOfSender, 'PIXS tokens must be owned to withdraw reflection');
 
         payable(address(sender)).sendValue(reflectionPart);
 
     }
 
     
+    /// @dev Avoid locked BNB after reflection in the case of holders that did not withdraw within one year after the release of the reflection
+    function ownersWithdrawOneYearAfterRelease() public onlyOwner reflectionIsReleased {
+        uint oneYear = 31536000;
+        if (block.timestamp >= (reflectionReleaseTimestamp + oneYear)) {
+
+            uint ownerPart = thisBalance() / 2;
+
+            // totalOwnersWithdrawn += 50 * 2
+            for (uint i = 0; i < 2; i++) {
+                payable(address(owners[i])).sendValue(ownerPart);
+            }
+        }
+    }
 
 
     /* PIXS INTEGRATED MARKET PUBLIC BUY */
 
-    /// @dev Internal transfer 
+    /// @dev Internal transfer for existing PIXS tokens
     function internalTransfer(address tOwner, uint tokenId, address receiver) 
     validAddress(receiver) internal returns(bool transferred) {
                 
@@ -548,8 +632,6 @@ contract Pixsale is PIXSMarket {
             pixs[tokenId-1] = _pixs;
         }
     
-
-        // _transfer(tOwner, receiver, tokenId);
         _transfer(tOwner, receiver, tokenId);
 
         return true;
