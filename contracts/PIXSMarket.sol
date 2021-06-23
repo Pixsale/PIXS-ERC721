@@ -5,6 +5,23 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./SharedOwnership.sol";
 
+/**                 
+ *      ▌ ▘ ▀ ▗ ▜    ▐    ▀       ▀    ▀ ▀▀▀ ▀ ▀        ▀       ▒           ▀ ▀ ▘▀ ▀ 
+ *      ▀       ▓          ▀     ▀     ▒              ▀   ▚     ▀           ▓
+ *      ▙ ▀ ▀▝▐ ▀    ▀       ▚ ▞       ▖ ▀ ▝ ▀ ▚    ▞      ▀    ░           ▀ ▂ ▂ ▂         
+ *      ▀            ▀       ▞ ▚               ▀    ▀ ▀ ▔ ▀ ▟   ▆           ▀▝▝ ▀ ▀  
+ *      ▀            ▓      ▀   ▀              ▀    ░       ▀   ▀           ▀
+ *      ░            ▀    ▘       ▚    ▘ ▀ ▀ ▀▀▀    ▟       ▀   ▆ ▍▀▀ ▀ ▘   ▙ ▀ ▀ ▀ ▞ 
+ *                                                          ▔
+ *      VISIT HTTPS://PIXSALE.IO
+ *      JOIN THE MAP !
+ *             
+ * @title PIXSMarket
+ * @author Mathieu L
+ * @dev Established on JUNE 23rd, 2021    
+ * @dev Deployed with solc version 0.8.4
+ * @dev Contact us at go@pixsale.io                                  
+*/
 contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
 
     /// @notice token Id => sale price

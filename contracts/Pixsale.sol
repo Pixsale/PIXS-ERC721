@@ -1,19 +1,8 @@
-// SPDX-License-Identifier : GPL-v3-only
 pragma solidity ^0.8.0;
 
 import "./PIXSMarket.sol";
 
-/**                 
- *      ▌ ▘ ▀ ▗ ▜    ▐    ▀       ▀    ▀ ▀▀▀ ▀ ▀        ▀       ▒           ▀ ▀ ▘▀ ▀ 
- *      ▀       ▓          ▀     ▀     ▒              ▀   ▚     ▀           ▓
- *      ▙ ▀ ▀▝▐ ▀    ▀       ▚ ▞       ▖ ▀ ▝ ▀ ▚    ▞      ▀    ░           ▀ ▂ ▂ ▂         
- *      ▀            ▀       ▞ ▚               ▀    ▀ ▀ ▔ ▀ ▟   ▆           ▀▝▝ ▀ ▀  
- *      ▀            ▓      ▀   ▀              ▀    ░       ▀   ▀           ▀
- *      ░            ▀    ▘       ▚    ▘ ▀ ▀ ▀▀▀    ▟       ▀   ▆ ▍▀▀ ▀ ▘   ▙ ▀ ▀ ▀ ▞ 
- *                                                          ▔
- *      VISIT HTTPS://PIXSALE.IO
- *      JOIN THE MAP !
- *             
+/**                         
  * @title Pixsale
  * @author Mathieu L
  * @dev Established on JUNE 23rd, 2021    
@@ -156,6 +145,7 @@ contract Pixsale is PIXSMarket {
 
     }
 
+    /// @dev Returns the total amount of pixels that owners have gaveaway
     function availableGivewayPixels() public view returns(uint aGiveawayPixels) {
         aGiveawayPixels = (teamPixelsSupply - totalPixelsGaveway);
     }

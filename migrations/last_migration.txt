@@ -1,7 +1,10 @@
+
+////////////////////////
+/////////////////////// BSC TEST ////////////////////////
+////////////////////////
+
 > Compiled successfully using:
    - solc: 0.8.4+commit.c7e474f2.Emscripten.clang
-
-
 
 Starting migrations...
 ======================
@@ -15,28 +18,29 @@ Starting migrations...
 
    Deploying 'Migrations'
    ----------------------
-   > transaction hash:    0x4092a8886f85c0a939921af1cd8ed29477d57feacbea4a5750967985ae4155d3
+   > transaction hash:    0x0b5632e9f1c11ad620c9f00c38e5d4882fa46b8f93354e08ea9e7e163f935b5f
    > Blocks: 3            Seconds: 9
-   > contract address:    0x485f822dEC3656AE0Ec006f31c42B3A1bB916Ed1
-   > block number:        9738651
-   > block timestamp:     1623713278
-   > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
-   > balance:             0.51966182
-   > gas used:            153718 (0x25876)
-   > gas price:           20 gwei
+   > contract address:    0xEB172EB187Da9CF2aEC325aA763b59F6F091B387
+   > block number:        9985103
+   > block timestamp:     1624452649
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             0.24866747
+   > gas used:            153718 (0x25876)      
+   > gas price:           10 gwei
    > value sent:          0 ETH
-   > total cost:          0.00307436 ETH
+   > total cost:          0.00153718 ETH
 
    Pausing for 5 confirmations...
    ------------------------------
-   > confirmation number: 2 (block: 9738654)
-   > confirmation number: 3 (block: 9738655)
-   > confirmation number: 5 (block: 9738657)
+   > confirmation number: 1 (block: 9985106)
+   > confirmation number: 3 (block: 9985108)
+   > confirmation number: 4 (block: 9985109)
+   > confirmation number: 5 (block: 9985110)
 
    > Saving migration to chain.
    > Saving artifacts
    -------------------------------------
-   > Total cost:          0.00307436 ETH
+   > Total cost:          0.00153718 ETH
 
 
 2_deploy_contracts.js
@@ -44,32 +48,110 @@ Starting migrations...
 
    Deploying 'Pixsale'
    -------------------
-   > transaction hash:    0x6975df76978034a6eb6eb838ce23f5b464bd36098972104820056290f9a16c12
-   > Blocks: 3            Seconds: 9
-   > contract address:    0x9ee05b7510a901F4Ef49602031278828226BbDf8
-   > block number:        9738665
-   > block timestamp:     1623713320
-   > account:             0x21fAC178E0b0df2Db51A06d52B32DE4479a8b3F1
-   > balance:             0.41263282
-   > gas used:            5309160 (0x5102e8)
-   > gas price:           20 gwei
+   > transaction hash:    0xe0fb0f036fa572838c71cd8c06309cd211f82ea9cd9461ccd375e6a638a2855d
+   > Blocks: 4            Seconds: 14
+   > contract address:    0x097433007a3E2626704B6BFa79698aDc344B2a5d
+   > block number:        9985120
+   > block timestamp:     1624452700
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             0.20006708
+   > gas used:            4817749 (0x498355)
+   > gas price:           10 gwei
    > value sent:          0 ETH
-   > total cost:          0.1061832 ETH
+   > total cost:          0.04817749 ETH  
 
    Pausing for 5 confirmations...
    ------------------------------
-   > confirmation number: 2 (block: 9738669)
-   > confirmation number: 3 (block: 9738670)
-   > confirmation number: 4 (block: 9738671)
-   > confirmation number: 6 (block: 9738673)
+   > confirmation number: 2 (block: 9985124)
+   > confirmation number: 3 (block: 9985125)
+   > confirmation number: 5 (block: 9985127)
 
    > Saving migration to chain.
    > Saving artifacts
    -------------------------------------
-   > Total cost:           0.1061832 ETH
+   > Total cost:          0.04817749 ETH
 
 
 Summary
 =======
 > Total deployments:   2
-> Final cost:          0.10925756 ETH
+> Final cost:          0.04971467 ETH
+
+
+
+
+
+////////////////////////
+/////////////////////// BSC LIVE VERSION 1 : 23 juin 2021 ////////////////////////
+////////////////////////
+
+> Compiled successfully using:
+   - solc: 0.8.4+commit.c7e474f2.Emscripten.clang
+
+
+
+Starting migrations...
+======================
+> Network name:    'bsc'
+> Network id:      56
+> Block gas limit: 59965894 (0x39301c6)
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0x58e404a2e4b9ab0b409af00f01486e1258502f69fde57d0b8c9800d23bc82437
+   > Blocks: 3            Seconds: 8
+   > contract address:    0xB1af47b792BC33d4f2FC9c9A03fE18F8942b46E3
+   > block number:        8548465
+   > block timestamp:     1624455485
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             0.11873141
+   > gas used:            153718 (0x25876)
+   > gas price:           5 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00076859 ETH
+
+   Pausing for 1 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 8548467)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00076859 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'Pixsale'
+   -------------------
+   > transaction hash:    0x9cb1fb2f23f06b7bce9bd97844681027b83954cd86a91bf5c9a490a6c285dc25
+   > Blocks: 3            Seconds: 12
+   > contract address:    0x3B44EBEa6f45a0A8C24ce236a10Ccc1909EDcb1c
+   > block number:        8548475
+   > block timestamp:     1624455520
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             0.094431215
+   > gas used:            4817749 (0x498355)
+   > gas price:           5 gwei
+   > value sent:          0 ETH
+   > total cost:          0.024088745 ETH
+
+   Pausing for 1 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 8548477)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.024088745 ETH
+
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.024857335 ETH

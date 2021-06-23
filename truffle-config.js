@@ -57,19 +57,19 @@ module.exports = {
     bsctest: {
       provider: () => new HDWalletProvider(MNEMONIC, `https://data-seed-prebsc-1-s1.binance.org:8545`),
       network_id: 97,
-      confirmations: 5,
+      confirmations: 1,
       timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 5500000
+      gas: 5100000
     },
     // binance smart chain live
     bsc: {
       provider: () => new HDWalletProvider(MNEMONIC, `https://bsc-dataseed1.binance.org`),
       network_id: 56,
-      confirmations: 5,
+      confirmations: 1,
       timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 5500000
+      gas: 5100000
     },
   },
   compilers: {

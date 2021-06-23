@@ -5,7 +5,7 @@ const fs = require('fs');
 
 
 /////// SET HERE ///////
-// @proceed : SET true or false to allow deployment a new FieldCoin contract
+// @proceed : SET true or false to allow deployment a new Pixsale contract
 const { DEPLOY_PIXSALE } = process.env;
 ////////////////////////
 
@@ -15,7 +15,9 @@ const TESTNET_OWNERS = [
 ];
 
 const LIVE_OWNERS = [
+  // Owner 1
   '0xe70D9D77DC5ED0Bd45E15f8B81C02694e1051f98',
+  // Owner 2
   '0xA364555826ec79Be3573ADC71faA2d99099c879B'
 ];
 
