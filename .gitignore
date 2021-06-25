@@ -1,4 +1,5 @@
 /build
+/deprecated
 node_modules
 .env
 notes.*
