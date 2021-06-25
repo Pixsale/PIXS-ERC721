@@ -485,7 +485,15 @@ contract('Pixsale', async(accounts) => {
 		await pixsale.auctionWithdraw({from: owner2}).should.be.rejectedWith(EVMRevert); //ok
 	});
 
-	it('checks that contract computes tokens uris well', async() => {
+	it('checks that contract implements tokens uris well', async() => {
+		const newBase = 'https://customapi.com/pixsale/';
+		await minter(0, 0, 5, 5, user1).should.be.fulfilled;
+		(await pixsale.tokenURI('1')).toString().should.equal(`${baseTokenUri}1`);
+
+		await pixsale.setBaseTokenURI(newBase, { from: user1 }).should.be.rejectedWith(EVMRevert);
+		await pixsale.setBaseTokenURI(newBase, { from: owner2 }).should.be.fulfilled;
+
+		(await pixsale.tokenURI('1')).toString().should.equal(`${newBase}1`);
 
 	})
 
