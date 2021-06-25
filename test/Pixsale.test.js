@@ -11,7 +11,16 @@ const pixelsFromCoords = coords => (
 	(coords[2] - coords[0]) * (coords[3] - coords[1])
 );
 
-const proxyRegistryAddress = '0x58807baD0B376efc12F5AD86aAc70E78ed67deaE';
+const pixelPrice = 0.4;
+
+const getValue = coords => {
+	let amount = pixelsFromCoords(coords) * pixelPrice;
+	let tokens = web3.utils.toWei((amount).toString(), 'ether');
+	return web3.utils.toBN(tokens);
+	
+}
+
+
 const baseTokenUri = 'https://pixsale.herokuapp.com/token/';
 
 
@@ -20,9 +29,8 @@ contract('Pixsale', async(accounts) => {
 	let pixsale;
 	let snapshotId;
 
-	const pixelPrice = (0.0015 * 1e18);
-	const pixelsAmount = 10000; 			// 10 000 pixels
-	const coords = [ 10, 20, 110, 120 ]; 	// 100x100 squared space possible
+	const pixelsAmount = 25; 			// 10 000 pixels
+	const coords = [ 10, 20, 15, 25 ]; 	// 100x100 squared space possible
 	// 			   [ 10, 120, 110, 220 ]	t < B
 	const www = 'https://pixsale.io';
 	const image = 'https://securise.io/static/media/logo.c5134e8c.png';
@@ -38,7 +46,6 @@ contract('Pixsale', async(accounts) => {
 
 	const constructorArgs = [
 		[owner1, owner2],
-		proxyRegistryAddress,
 		baseTokenUri
 	];
 
@@ -48,7 +55,7 @@ contract('Pixsale', async(accounts) => {
 		www,
 		image,
 		tDescription,
-		{ from, value: pixelPrice * pixelsFromCoords([l, t, r, b]) }
+		{ from, value: getValue([l, t, r, b])}//pixelPrice * pixelsFromCoords([l, t, r, b]) }
 	);
 
 	beforeEach(async () => {
@@ -113,11 +120,11 @@ contract('Pixsale', async(accounts) => {
 			image,
 			www,
 			tDescription,
-			{ from: user1, value: pixelPrice * 10000 }
+			{ from: user1, value: getValue(coords)}//pixelPrice * 25 }
 		).should.be.fulfilled;
 		
 		(await pixsale.balanceOf(user1)).toString().should.equal('1');
-		(await pixsale.soldPixels()).toString().should.equal('10000');
+		(await pixsale.soldPixels()).toString().should.equal('25');
 		(await pixsale.totalSupply()).toString().should.equal('1');
 		(await pixsale.pixelsOf(user1)).toString().should.equal(pixelsAmount.toString())
 	})
@@ -129,7 +136,7 @@ contract('Pixsale', async(accounts) => {
 			www,
 			image,
 			tDescription,
-			{ from: user1, value: pixelPrice * 25 }
+			{ from: user1, value: getValue([0,0,5,5])}//pixelPrice * 25 }
 		).should.be.fulfilled;
 		let pixs1 = (await pixsale.getPixs("1"));
 		await pixsale.editPixsMetadatas(
@@ -165,24 +172,24 @@ contract('Pixsale', async(accounts) => {
 
 	it('checks that requesting a bad amount of pixels leads the transaction to fail', async() => {
 		await pixsale.mint(
-			pixelsAmount + 1,					// 10 000 pixels + unwanted 1				
+			pixelsAmount + 1,					// 25 pixels + unwanted 1				
 			coords,	
 			image,
 			www,
 			tDescription,
-			{ from: user1, value: pixelPrice * (pixelsAmount+1) }
+			{ from: user1, value: pixelPrice * 1e18 * (pixelsAmount+1) }
 		).should.be.rejectedWith(EVMRevert);
 	})
 
 	it('checks that the transaction fails if the total amount of pixels computed from coords does not match the requested amount of pixels', async() => {
 		await pixsale.mint(
 			pixelsAmount,					// 10 000 pixels + unwanted 1				
-			[10, 20, 110, 121],	
+			[10, 20, 15, 26],	
 			www,
 			image,
 			tDescription,
-			{ from: user1, value: pixelPrice * (pixelsAmount+1) }
-		).should.be.rejectedWith(EVMRevert);
+			{ from: user1, value: getValue([10, 20, 15, 26]) }
+		).should.be.rejectedWith(EVMRevert); 
 	})
 
 	it('checks that sale amounts are distributed as planned and reflection occurs', async() => {
@@ -201,19 +208,19 @@ contract('Pixsale', async(accounts) => {
 			www,
 			image,
 			tDescription,
-			{ from: user1, value: pixelPrice * pixelsFromCoords((coords)) }
+			{ from: user1, value: getValue(coords)}//pixelPrice * pixelsFromCoords((coords)) }
 		).should.be.fulfilled;
 		const postBalance1_1 = await Promise.resolve(parseInt((await web3.eth.getBalance(owner1)).toString()));//await web3.eth.getBalance(owner1);
 		const postBalance2_1 = await Promise.resolve(parseInt((await web3.eth.getBalance(owner2)).toString()));//await web3.eth.getBalance(owner2);
 		const tReflection2 = await Promise.resolve(parseInt((await pixsale.totalReflection()).toString()));
-		const pAmount = pixelsFromCoords([10, 120, 110, 220]);
+		const pAmount = pixelsFromCoords([100, 100, 111, 111]);
 		await pixsale.mint(
 			pAmount,							
-			[10, 121, 110, 221],
+			[100, 100, 111, 111],
 			www,
 			image,
 			tDescription,
-			{ from: user2, value: pixelPrice * pAmount }
+			{ from: user2, value: getValue([100, 100, 111, 111])}//pixelPrice * pAmount }
 		).should.be.fulfilled;
 		const postBalance1_2 = await Promise.resolve(parseInt((await web3.eth.getBalance(owner1)).toString()));
 		const postBalance2_2 = await Promise.resolve(parseInt((await web3.eth.getBalance(owner2)).toString()));
@@ -284,7 +291,7 @@ contract('Pixsale', async(accounts) => {
 			www,
 			image,
 			tDescription,
-			{ from: user2, value: (pixelPrice * pixelsFromCoords([1000, 1000, 1005, 1005]) - (pixelPrice * 10)) }
+			{ from: user2, value: (getValue([1000, 1000, 1005, 1005]) - (pixelPrice * 1e18 * 10)) }
 		).should.be.fulfilled;
 		(await pixsale.pixelsBalance(user2)).toString().should.equal('0');
 	});
@@ -296,7 +303,7 @@ contract('Pixsale', async(accounts) => {
 			www,
 			image,
 			tDescription,
-			{ from: user1, value: pixelPrice * pixelsFromCoords((coords)) }
+			{ from: user1, value: getValue(coords) }
 		).should.be.fulfilled;
 		const startBalance = await Promise.resolve(parseInt((await pixsale.thisBalance()).toString()));
 		const preBalanceUser1 = await Promise.resolve(parseInt((await web3.eth.getBalance(user1)).toString()));
@@ -440,17 +447,21 @@ contract('Pixsale', async(accounts) => {
 		await minter(1000, 1000, 1005, 1015, user3).should.be.fulfilled;
 
 		const comBalance = await Promise.resolve(parseInt((await pixsale.totalCom()).toString()));
+
 		await pixsale.setComWallet(user3, {from: owner1}).should.be.fulfilled;
 
 		await pixsale.comPartnerWithdraw(comBalance.toString(), {from: user1}).should.be.rejectedWith(EVMRevert);
 		await pixsale.comPartnerWithdraw((comBalance / 2).toString(), {from: user3}).should.be.fulfilled;
 
 		(await pixsale.totalComWithdrawn()).toString().should.equal((comBalance / 2).toString());
-		(await pixsale.totalComAvailable()).toString().should.equal((comBalance / 2).toString());
 
+		const aCom = (await pixsale.totalComAvailable());
+		aCom.toString().should.equal((comBalance / 2).toString());
 
-		await pixsale.comPartnerWithdraw(((comBalance / 2) + 1).toString(), {from: user3}).should.be.rejectedWith(EVMRevert);
-		await pixsale.comPartnerWithdraw((comBalance / 2).toString(), {from: user3}).should.be.fulfilled;
+		const aComOverflow = await Promise.resolve((aCom + 1).toString());
+		await pixsale.comPartnerWithdraw(aComOverflow, {from: user3}).should.be.rejectedWith(EVMRevert);	// passing but should not
+		await pixsale.comPartnerWithdraw((aCom).toString(), {from: user3}).should.be.fulfilled;
+
 
 		(await pixsale.totalComAvailable()).toString().should.equal('0');
 
@@ -462,7 +473,7 @@ contract('Pixsale', async(accounts) => {
 		await pixsale.signProjectAbandonAndReflectionRelease({from: owner2}).should.be.fulfilled;
 
 		// owners can spend auction sale organization budget after one year
-		await pixsale.auctionWithdraw({from: user1}).should.be.rejectedWith(EVMRevert);
+		await pixsale.auctionWithdraw({from: user1}).should.be.rejectedWith(EVMRevert);	//ok
 		await pixsale.auctionWithdraw({from: owner1}).should.be.fulfilled;
 
 		const ttlAuction = await Promise.resolve(parseInt((await pixsale.totalAuction()).toString()));
@@ -470,8 +481,8 @@ contract('Pixsale', async(accounts) => {
 		(await Promise.resolve(ttlAuction === (comBalance / 5))).toString().should.equal('true');
 		(await Promise.resolve(ttlAuctionWithdrawn === ttlAuction)).toString().should.equal('true');
 
-		await pixsale.auctionWithdraw({from: owner1}).should.be.rejectedWith(EVMRevert);
-		await pixsale.auctionWithdraw({from: owner2}).should.be.rejectedWith(EVMRevert);
+		await pixsale.auctionWithdraw({from: owner1}).should.be.rejectedWith(EVMRevert); //ok
+		await pixsale.auctionWithdraw({from: owner2}).should.be.rejectedWith(EVMRevert); //ok
 	});
 
 	it('checks that contract computes tokens uris well', async() => {
