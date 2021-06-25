@@ -21,6 +21,8 @@ const LIVE_OWNERS = [
   '0xA364555826ec79Be3573ADC71faA2d99099c879B'
 ];
 
+const baseTokenUri = 'https://pixsale.herokuapp.com/token/';
+
 /**
  * @dev Contract Deployer
  * @notice run the "truffle deploy" command
@@ -31,13 +33,14 @@ module.exports = async (deployer, network) => {
     const isTestNet = await Promise.resolve(
       (network.indexOf('bsctest') >= 0)
       || (network.indexOf('rinkeby') >= 0)
+      || (network.indexOf('mumbai') >= 0)
     );
     const OWNERS = await Promise.resolve(
       isTestNet
       ? TESTNET_OWNERS
       : LIVE_OWNERS
     )
-    await deployer.deploy(Pixsale, OWNERS);
+    await deployer.deploy(Pixsale, OWNERS, baseTokenUri);
     // const { abi, address } = Pixsale;
     //await fs.writeFile(`${address}.json`, JSON.stringify(abi, null, 4), console.log);
     

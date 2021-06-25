@@ -49,13 +49,12 @@ contract Pixsale is PIXSMarket {
     /// @notice Total supply of available pixels
     uint public totalPixels = 8294400;
     
-    /// @notice BNB price 0.0015 BNB / pixel
-    uint public immutable pixelPrice = 1500000000000000;
+    /// @notice MATIC price 0.4 MATIC / pixel
+    uint public immutable pixelPrice = 400000000000000000;
 
     /// @notice Total Reflection to distribute among all holders prorata to the ratio totalPixels / balance
     uint public totalReflection;
 
-    /// @dev TODO : Allow com wallet to withdraw in totalCom
     /// @notice Total received value dedicated to communication / marketing 
     uint public totalCom;
 
@@ -100,11 +99,18 @@ contract Pixsale is PIXSMarket {
 
     /// @dev Pixsale construction
     /// @param _owners : array of 2 addresses for shared ownership
-    constructor(address[] memory _owners) PIXSMarket(_owners) {
+    constructor(
+        address[] memory _owners, 
+        string memory baseTokenURI
+    ) PIXSMarket(_owners) {
+
+        // set base token uri
+        _baseTokenURI = baseTokenURI;
 
         // reserve team pixels part
         teamPixelsSupply = 294400;
 
+        // set contract birth date
         birthTime = block.timestamp;
     }
 
@@ -114,6 +120,24 @@ contract Pixsale is PIXSMarket {
             'reflection must be released'
         );
         _;
+    }
+
+    /**
+    * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-less listings.
+    */
+    function isApprovedForAll(
+        address owner,
+        address operator
+    )
+    public override
+    view
+    returns (bool)
+    {
+        // Whitelist OpenSea proxy contract for easy trading.
+        if (address(0x58807baD0B376efc12F5AD86aAc70E78ed67deaE) == operator) {
+            return true;
+        }
+        return ERC721.isApprovedForAll(owner, operator);
     }
 
     function setComWallet(address _comAccount) public onlyOwner {
@@ -635,7 +659,7 @@ contract Pixsale is PIXSMarket {
     }
 
     
-    /// @dev Avoid locked BNB after reflection in the case of holders that did not withdraw within one year after the release of the reflection
+    /// @dev Avoid locked MATIC after reflection in the case of holders that did not withdraw within one year after the release of the reflection
     function ownersWithdrawOneYearAfterRelease() public onlyOwner reflectionIsReleased {
         uint oneYear = 31536000;
         if (block.timestamp >= (reflectionReleaseTimestamp + oneYear)) {

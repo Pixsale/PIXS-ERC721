@@ -11,6 +11,9 @@ const pixelsFromCoords = coords => (
 	(coords[2] - coords[0]) * (coords[3] - coords[1])
 );
 
+const proxyRegistryAddress = '0x58807baD0B376efc12F5AD86aAc70E78ed67deaE';
+const baseTokenUri = 'https://pixsale.herokuapp.com/token/';
+
 
 contract('Pixsale', async(accounts) => {
 	
@@ -34,7 +37,9 @@ contract('Pixsale', async(accounts) => {
 	const user4 = accounts[6];
 
 	const constructorArgs = [
-		[owner1, owner2]
+		[owner1, owner2],
+		proxyRegistryAddress,
+		baseTokenUri
 	];
 
 	const minter = async(l, t, r, b, from) => await pixsale.mint(
@@ -468,6 +473,10 @@ contract('Pixsale', async(accounts) => {
 		await pixsale.auctionWithdraw({from: owner1}).should.be.rejectedWith(EVMRevert);
 		await pixsale.auctionWithdraw({from: owner2}).should.be.rejectedWith(EVMRevert);
 	});
+
+	it('checks that contract computes tokens uris well', async() => {
+
+	})
 
 	/***************** 
 	 * ALL PASSING ✓ *

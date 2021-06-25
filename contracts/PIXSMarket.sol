@@ -1,9 +1,9 @@
 // SPDX-License-Identifier : GPL-v3-only
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./SharedOwnership.sol";
+import "./OpenSeaERC721Metadatas.sol";
 
 /**                 
  *      ▌ ▘ ▀ ▗ ▜    ▐    ▀       ▀    ▀ ▀▀▀ ▀ ▀        ▀       ▒           ▀ ▀ ▘▀ ▀ 
@@ -22,7 +22,7 @@ import "./SharedOwnership.sol";
  * @dev Deployed with solc version 0.8.4
  * @dev Contact us at go@pixsale.io                                  
 */
-contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
+contract PIXSMarket is OpenSeaERC721Metadatas, ReentrancyGuard {
 
     /// @notice token Id => sale price
     mapping (uint => uint) public salePrices;
@@ -123,7 +123,7 @@ contract PIXSMarket is ERC721, SharedOwnership, ReentrancyGuard {
 
     /// @dev Allow users to propose a price for the purchase of a token that is or not for sale
     /// @param _tokenId Token targeted by sender
-    /// @param _amount amount in BNB that sender proposes to buy the token
+    /// @param _amount amount in MATIC that sender proposes to buy the token
     function makeOffer(uint _tokenId, uint _amount) external {
         emit IsOffering(_tokenId, _msgSender(), _amount);
     }

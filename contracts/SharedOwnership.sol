@@ -1,13 +1,14 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/Context.sol";
+// import "@openzeppelin/contracts/utils/Context.sol";
+import "./ContextMixin.sol";
 
 
 /// @title Shared Ownership
 /// @author Mathieu Lecoq
 /// @notice Allows multiple addresses to share ownership of the contract
 /// owners are able to transfer their ownership and renounce to it
-contract SharedOwnership is Context {
+contract SharedOwnership is ContextMixin {
 
     /// @dev Storage of MADE token owners
     address[] internal owners;
@@ -33,7 +34,7 @@ contract SharedOwnership is Context {
 
     /// @dev owner right check
     modifier onlyOwner() {
-        require(isOwner(_msgSender()), 'access denied');
+        require(isOwner(msgSender()), 'access denied');
         _;
     }
 
@@ -79,7 +80,7 @@ contract SharedOwnership is Context {
     /// @param _newOwner address of the futur new owner
     /// @return _relinquishmentToken bytes32 ownership transfer key for msg.sender => _newOwner
     function preTransferOwnership(address _newOwner) public onlyOwner returns(bytes32 _relinquishmentToken) {
-        address stillOwner = _msgSender();
+        address stillOwner = msgSender();
         uint salt = uint(keccak256(abi.encodePacked(block.timestamp, stillOwner)));
         bytes32 _rToken = bytes32(salt);
         relinquishmentTokens[stillOwner][_newOwner] = _rToken;
@@ -89,13 +90,13 @@ contract SharedOwnership is Context {
     /// @dev Retrieve the ownership transfer key preset by a current owner to a new owner
     /// preTransferOwnership method must be called prior to calling this method
     function getRelinquishmentToken(address _newOwner) public onlyOwner view returns (bytes32 _rToken) {
-        _rToken = relinquishmentTokens[_msgSender()][_newOwner];
+        _rToken = relinquishmentTokens[msgSender()][_newOwner];
     }
 
     /// IRREVERSIBLE ACTION
     /// @dev Allows any current owner to definitively and safely relinquish its part of control over the contract to a new address
     function transferOwnership(bytes32 _relinquishmentToken, address _newOwner) public onlyOwner {
-        address previousOwner = _msgSender();
+        address previousOwner = msgSender();
         bytes32 rToken = relinquishmentTokens[previousOwner][_newOwner];
         
         // make sure provided _relinquishmentToken matchs sender storage for _newOwner
