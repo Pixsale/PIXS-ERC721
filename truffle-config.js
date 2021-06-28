@@ -4,6 +4,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const { MNEMONIC, INFURA_KEY } = process.env;
 
+
 const solcStable = {
   version: '0.8.4',
   settings: {
@@ -96,7 +97,7 @@ module.exports = {
       confirmations: 1,
       timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 5100000
+      // gas: 5100000
     },
 
   },

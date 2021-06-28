@@ -2,30 +2,39 @@ pragma solidity ^0.8.0;
 
 import "./PIXSMarket.sol";
 
-/**                         
+/**                 
+ *      ▌ ▘ ▀ ▗ ▜    ▐    ▀       ▀    ▀ ▀▀▀ ▀ ▀        ▀       ▒           ▀ ▀ ▘▀ ▀ 
+ *      ▀       ▓          ▀     ▀     ▒              ▀   ▚     ▀           ▓
+ *      ▙ ▀ ▀▝▐ ▀    ▀       ▚ ▞       ▖ ▀ ▝ ▀ ▚    ▞      ▀    ░           ▀ ▂ ▂ ▂         
+ *      ▀            ▀       ▞ ▚               ▀    ▀ ▀ ▔ ▀ ▟   ▆           ▀▝▝ ▀ ▀  
+ *      ▀            ▓      ▀   ▀              ▀    ░       ▀   ▀           ▀
+ *      ░            ▀    ▘       ▚    ▘ ▀ ▀ ▀▀▀    ▟       ▀   ▆ ▍▀▀ ▀ ▘   ▙ ▀ ▀ ▀ ▞ 
+ *                                                          ▔
+ *      VISIT HTTPS://PIXSALE.IO
+ *      JOIN THE MAP !
+ *             
  * @title Pixsale
  * @author Mathieu L
  * @dev Established on JUNE 23rd, 2021    
  * @dev Deployed with solc version 0.8.4
  * @dev Contact us at go@pixsale.io                                  
-*/
+*/                       
 contract Pixsale is PIXSMarket {
     using Address for address payable;
 
     /// @notice PIXS token properties
     struct PIXS {
-        /// @dev address of owner
+        /// address of owner
         address owner; 
-        /// @dev total number of pixels used
+        /// total number of pixels used
         uint pixels;
-        /// @dev position of the image fetched at `link` : left, top, right, bottom
+        /// position of the image fetched at `link` : left, top, right, bottom
         uint[] coords;       
-        /// @dev url address pointing to an image
+        /// url address pointing to an image
         string image;
-        /// @dev url pointing to a website
+        /// url pointing to a website
         string link;
-        /// @dev title and description 
-        /// @notice format must contains a coma(,) 
+        /// title and description - format must contains a coma(,) 
         /// ex.:  My Project, catch phrase for my project
         string titledDescription;
     }

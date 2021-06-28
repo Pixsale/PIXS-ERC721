@@ -180,13 +180,13 @@ Starting migrations...
 
    Deploying 'Migrations'
    ----------------------
-   > transaction hash:    0x9ffdd1356f830aaed4695c256df737948f73907c4270767e9c3a2cb7c6520b59
+   > transaction hash:    0xf4decce5ee2eaeb59757bf49d233e0383136cf62704905b492e5c6d7a5bf9189
    > Blocks: 2            Seconds: 4
-   > contract address:    0xEB172EB187Da9CF2aEC325aA763b59F6F091B387
-   > block number:        15522106
-   > block timestamp:     1624578536
+   > contract address:    0x1086A548bce938ECAdcBf2056Dc9dD53516A3Fa1
+   > block number:        15673330
+   > block timestamp:     1624892996
    > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
-   > balance:             0.23940802
+   > balance:             0.57054582
    > gas used:            155018 (0x25d8a)
    > gas price:           20 gwei
    > value sent:          0 ETH
@@ -194,7 +194,7 @@ Starting migrations...
 
    Pausing for 1 confirmations...
    ------------------------------
-   > confirmation number: 2 (block: 15522108)
+   > confirmation number: 2 (block: 15673332)
 
    > Saving migration to chain.
    > Saving artifacts
@@ -207,29 +207,112 @@ Starting migrations...
 
    Deploying 'Pixsale'
    -------------------
-   > transaction hash:    0x9fa7f0f6a490e8bf21f50a2585146d8584bcbc647bb0bc575158c18002a44567
-   > Blocks: 1            Seconds: 4
-   > contract address:    0x097433007a3E2626704B6BFa79698aDc344B2a5d
-   > block number:        15522112
-   > block timestamp:     1624578552
+   > transaction hash:    0x4c96bb13731ceccd035e7e7210fd30e21ec8b637dbaeafad0e494f0be94c56ce
+   > Blocks: 2            Seconds: 4
+   > contract address:    0xFF640932845550710da5Ab19ff62a789ADC2E69C
+   > block number:        15673338
+   > block timestamp:     1624893012
    > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
-   > balance:             0.13642848
-   > gas used:            5103287 (0x4ddeb7)
+   > balance:             0.4661063
+   > gas used:            5176286 (0x4efbde)
    > gas price:           20 gwei
    > value sent:          0 ETH
-   > total cost:          0.10206574 ETH
+   > total cost:          0.10352572 ETH
 
    Pausing for 1 confirmations...
    ------------------------------
-   > confirmation number: 2 (block: 15522114)
+   > confirmation number: 2 (block: 15673340)
 
    > Saving migration to chain.
    > Saving artifacts
    -------------------------------------
-   > Total cost:          0.10206574 ETH
+   > Total cost:          0.10352572 ETH
 
 
 Summary
 =======
 > Total deployments:   2
-> Final cost:          0.1051661 ETH
+> Final cost:          0.10662608 ETH
+
+
+
+
+
+
+
+
+
+////////////////////////
+/////////////////////// MATIC LIVE - POLYGON ////////////////////////
+////////////////////////
+
+> Compiled successfully using:
+   - solc: 0.8.4+commit.c7e474f2.Emscripten.clang
+
+
+
+Starting migrations...
+======================
+> Network name:    'matic'
+> Network id:      137
+> Block gas limit: 20109562 (0x132d8fa)
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0xb40943a71b3ffd71c87d1bdc9a2e9a2a201540c65abe734f7d0136f08cbf18cc
+   > Blocks: 4            Seconds: 8
+   > contract address:    0xEB172EB187Da9CF2aEC325aA763b59F6F091B387
+   > block number:        16257177
+   > block timestamp:     1624903210
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             3.94325929976798074
+   > gas used:            155018 (0x25d8a)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000155018 ETH
+
+   Pausing for 1 confirmations...
+   ------------------------------
+   > confirmation number: 2 (block: 16257180)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.000155018 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'Pixsale'
+   -------------------
+   > transaction hash:    0x14c95cf50d58a9f38f70427965dd9e7bb7a016603756acd9e4fbe3ffdae981fd
+   > Blocks: 6            Seconds: 12
+   > contract address:    0x097433007a3E2626704B6BFa79698aDc344B2a5d
+   > block number:        16257190
+   > block timestamp:     1624903236
+   > account:             0x82F6a1546d2B96753e2759dc0B147c9615E63552
+   > balance:             3.93803732376798074
+   > gas used:            5176286 (0x4efbde)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.005176286 ETH
+
+   Pausing for 1 confirmations...
+   ------------------------------
+   > confirmation number: 2 (block: 16257194)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.005176286 ETH
+
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.005331304 ETH

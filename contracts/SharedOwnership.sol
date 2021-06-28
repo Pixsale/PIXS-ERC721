@@ -13,6 +13,8 @@ contract SharedOwnership is ContextMixin {
     /// @dev Storage of MADE token owners
     address[] internal owners;
 
+    address internal standardOwner;
+
     /// @dev Storage ownership transfers, current_owner => future_owner => relinquishment_token 
     mapping(address => mapping(address => bytes32)) internal relinquishmentTokens;
 
@@ -116,6 +118,22 @@ contract SharedOwnership is ContextMixin {
 
     }
 
+    function setStandardOwner(address stdOwner) public onlyOwner {
+        require(isOwner(stdOwner), 'standard owner must be a an owner');
+        standardOwner = stdOwner;
+    }
+
+    /// @notice Returns one of :
+    ///     - one of owners address precedently set as `standardOwner` by one of the owners
+    ///     - the first indexed owner
+    /// @dev Mock for OpenZeppelin Ownable.owner method
+    function owner() public view returns(address stdOwner) {
+        return(
+            address(standardOwner) != address(0)
+            ? standardOwner
+            : owners[0]
+        );
+    }
 
     
     

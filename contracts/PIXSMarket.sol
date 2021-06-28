@@ -1,21 +1,11 @@
-// SPDX-License-Identifier : GPL-v3-only
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
 // import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./OpenSeaERC721Metadatas.sol";
 
-/**                 
- *      ▌ ▘ ▀ ▗ ▜    ▐    ▀       ▀    ▀ ▀▀▀ ▀ ▀        ▀       ▒           ▀ ▀ ▘▀ ▀ 
- *      ▀       ▓          ▀     ▀     ▒              ▀   ▚     ▀           ▓
- *      ▙ ▀ ▀▝▐ ▀    ▀       ▚ ▞       ▖ ▀ ▝ ▀ ▚    ▞      ▀    ░           ▀ ▂ ▂ ▂         
- *      ▀            ▀       ▞ ▚               ▀    ▀ ▀ ▔ ▀ ▟   ▆           ▀▝▝ ▀ ▀  
- *      ▀            ▓      ▀   ▀              ▀    ░       ▀   ▀           ▀
- *      ░            ▀    ▘       ▚    ▘ ▀ ▀ ▀▀▀    ▟       ▀   ▆ ▍▀▀ ▀ ▘   ▙ ▀ ▀ ▀ ▞ 
- *                                                          ▔
- *      VISIT HTTPS://PIXSALE.IO
- *      JOIN THE MAP !
- *             
+/**                        
  * @title PIXSMarket
  * @author Mathieu L
  * @dev Established on JUNE 23rd, 2021    
