@@ -126,7 +126,8 @@ contract('Pixsale', async(accounts) => {
 		(await pixsale.balanceOf(user1)).toString().should.equal('1');
 		(await pixsale.soldPixels()).toString().should.equal('25');
 		(await pixsale.totalSupply()).toString().should.equal('1');
-		(await pixsale.pixelsOf(user1)).toString().should.equal(pixelsAmount.toString())
+		(await pixsale.pixelsOf(user1)).toString().should.equal(pixelsAmount.toString());
+
 	})
 
 	it('checks that token metadatas can be post-edited', async() => {

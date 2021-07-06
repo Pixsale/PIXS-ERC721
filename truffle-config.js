@@ -92,7 +92,11 @@ module.exports = {
 
     // MAINNET
     matic: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://rpc-mainnet.matic.network`),
+      provider: () => new HDWalletProvider(
+        MNEMONIC,
+        'https://matic-mainnet.chainstacklabs.com'
+        //`https://rpc-mainnet.matic.network`
+      ),
       network_id: 137,
       confirmations: 1,
       timeoutBlocks: 200,

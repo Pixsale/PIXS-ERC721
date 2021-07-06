@@ -14,14 +14,24 @@ import "./OpenSeaERC721Metadatas.sol";
 */
 contract PIXSMarket is OpenSeaERC721Metadatas, ReentrancyGuard {
 
+    struct Offer {
+        address offerer;
+        uint amount;
+        uint timestamp;
+    }
+
     /// @notice token Id => sale price
     mapping (uint => uint) public salePrices;
 
     /// @notice token Id => owner => buyer => price
     mapping (uint => mapping(address => mapping(address => uint))) public privateSalePrices;
 
-    /// @dev Event firing when an offer has been made by a user to buy a specific token at proposed price
-    event IsOffering(uint indexed tokenId, address indexed offerer, uint amount);
+    /// @notice token ID => offers
+    mapping(uint => Offer[]) internal offers;
+
+    function getOffers(uint _tokenId) public view returns(Offer[] memory tokenOffers) {
+        return offers[_tokenId];
+    }
 
     /// @dev Check that caller is owner of a spacific token
     function onlyOwnerOf(uint tokenId) internal view returns(address tokenOwner) {
@@ -81,41 +91,11 @@ contract PIXSMarket is OpenSeaERC721Metadatas, ReentrancyGuard {
         tokenPrice = _getTokenPrice(_tokenId, _tokenOwner, _sender);
     }
 
-    // /// @dev Allow users to buy PIXS tokens if on sale
-    // function buy(uint _tokenId) public payable nonReentrant {
-    //     address sender = _msgSender();
-    //     address tokenOwner = ownerOf(_tokenId);
-
-    //     require(tokenOwner != sender, 'cant buy to self');
-
-    //     uint tokenPrice = _getTokenPrice(_tokenId, tokenOwner, sender);
-
-    //     require(
-    //         tokenPrice > 0, 
-    //         'PIXS must be on sale'
-    //     );
-
-    //     require(
-    //         msg.value >= tokenPrice 
-    //     );
-
-    //     payable(address(tokenOwner)).sendValue(tokenPrice);
-        
-    //     // transfer and clear old owner approvals
-    //     _transfer(tokenOwner, sender, _tokenId);
-
-    //     // remove from public sale
-    //     salePrices[_tokenId] = 0;
-
-    // }
-
-
-
     /// @dev Allow users to propose a price for the purchase of a token that is or not for sale
     /// @param _tokenId Token targeted by sender
     /// @param _amount amount in MATIC that sender proposes to buy the token
     function makeOffer(uint _tokenId, uint _amount) external {
-        emit IsOffering(_tokenId, _msgSender(), _amount);
+        offers[_tokenId].push(Offer(_msgSender(), _amount, block.timestamp));
     }
 
 
